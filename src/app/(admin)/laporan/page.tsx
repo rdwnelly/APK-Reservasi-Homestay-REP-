@@ -65,17 +65,42 @@ const LaporanPage = () => {
 
         if (target === "lunas") {
           acc.lunas += billed;
-        } else if (target === "dp") {
+        } else if (target === "dp" || target === "dp/uang muka") {
           acc.dp += billed;
+        } else if (target === "batal") {
+          // Do not add to total if cancelled? The previous code didn't handle batal explicitly, it added to belumBayar. 
+          // Let's just keep the old logic but add to belumBayar if not lunas/dp
+          acc.belumBayar += billed;
         } else {
           acc.belumBayar += billed;
         }
 
-        acc.totalKeseluruhan += billed;
+        if (target !== "batal") {
+            acc.totalKeseluruhan += billed;
+        }
         return acc;
       },
       { lunas: 0, dp: 0, belumBayar: 0, totalKeseluruhan: 0 }
     );
+  }, [reservasiList]);
+
+  const { kamarData, otaData } = useMemo(() => {
+    const kData: Record<string, number> = {};
+    const oData: Record<string, number> = {};
+
+    reservasiList.forEach((item) => {
+      // Hanya menghitung yang bukan batal
+      if (item.status_bayar?.toLowerCase() !== "batal") {
+        const billed = Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0;
+        const kamar = item.id_kamar || "Lainnya";
+        const ota = item.sumber_booking || "Lainnya";
+
+        kData[kamar] = (kData[kamar] || 0) + billed;
+        oData[ota] = (oData[ota] || 0) + billed;
+      }
+    });
+
+    return { kamarData: kData, otaData: oData };
   }, [reservasiList]);
 
   const chartOptions: ApexOptions = {
@@ -99,6 +124,48 @@ const LaporanPage = () => {
   };
 
   const chartSeries = [totals.lunas, totals.dp, totals.belumBayar];
+
+  const kamarChartOptions: ApexOptions = {
+    chart: { type: "bar", toolbar: { show: false } },
+    plotOptions: { bar: { borderRadius: 4, horizontal: true } },
+    dataLabels: { enabled: false },
+    xaxis: { 
+      categories: Object.keys(kamarData),
+      labels: {
+        formatter: (value) => {
+          return new Intl.NumberFormat("id-ID", { notation: "compact" }).format(Number(value));
+        }
+      }
+    },
+    colors: ["#3C50E0"],
+    tooltip: {
+      y: {
+        formatter: (val) => toCurrency(val)
+      }
+    }
+  };
+  const kamarChartSeries = [{ name: "Pemasukan", data: Object.values(kamarData) }];
+
+  const otaChartOptions: ApexOptions = {
+    chart: { type: "bar", toolbar: { show: false } },
+    plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '45%' } },
+    dataLabels: { enabled: false },
+    xaxis: { categories: Object.keys(otaData) },
+    yaxis: {
+      labels: {
+        formatter: (value) => {
+          return new Intl.NumberFormat("id-ID", { notation: "compact" }).format(Number(value));
+        }
+      }
+    },
+    colors: ["#10B981"],
+    tooltip: {
+      y: {
+        formatter: (val) => toCurrency(val)
+      }
+    }
+  };
+  const otaChartSeries = [{ name: "Pemasukan", data: Object.values(otaData) }];
 
   const exportCsv = () => {
     const header = ["Nama Tamu", "No HP", "Sumber Booking", "Kamar", "Checkin", "Checkout", "Status", "Total Tagihan"];
@@ -180,16 +247,44 @@ const LaporanPage = () => {
         </div>
       </div>
 
-      <div className="rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Visualisasi Pemasukan</h3>
-        <div className="mt-4">
-          <Chart
-            options={chartOptions}
-            series={chartSeries}
-            type="donut"
-            width="100%"
-            height={320}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">Status Pembayaran</h3>
+          <div className="mt-4">
+            <Chart
+              options={chartOptions}
+              series={chartSeries}
+              type="donut"
+              width="100%"
+              height={320}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">Pemasukan per Kamar</h3>
+          <div className="mt-4">
+            <Chart
+              options={kamarChartOptions}
+              series={kamarChartSeries}
+              type="bar"
+              width="100%"
+              height={320}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">Pemasukan per OTA</h3>
+          <div className="mt-4">
+            <Chart
+              options={otaChartOptions}
+              series={otaChartSeries}
+              type="bar"
+              width="100%"
+              height={320}
+            />
+          </div>
         </div>
       </div>
 

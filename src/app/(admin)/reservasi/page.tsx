@@ -3,16 +3,20 @@
 import React, { useState, useEffect } from "react";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, deleteDoc, doc, onSnapshot, query, getDocs, where } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, onSnapshot, query, getDocs, where, updateDoc } from "firebase/firestore";
+import Link from "next/link";
 
 interface ReservationData {
   id?: string;
   nama_tamu: string;
+  jumlah_tamu?: string | number;
   no_hp: string;
   sumber_booking: string;
   id_kamar: string;
   tgl_checkin: string;
   tgl_checkout: string;
+  jam_kedatangan: string;
+  kamar_siap: boolean;
   status_bayar: string;
   total_tagihan: string;
 }
@@ -20,14 +24,30 @@ interface ReservationData {
 const ReservasiPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   
   // State baru untuk menampung daftar reservasi dari Database
   const [reservasiList, setReservasiList] = useState<ReservationData[]>([]);
 
   const [formData, setFormData] = useState<ReservationData>({
-    nama_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
-    tgl_checkin: "", tgl_checkout: "", status_bayar: "Belum Bayar", total_tagihan: "",
+    nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
+    tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
   });
+
+  const handleEditClick = (item: ReservationData) => {
+    setEditingId(item.id || null);
+    setFormData(item);
+    setIsModalOpen(true);
+  };
+
+  const handleAddNewClick = () => {
+    setEditingId(null);
+    setFormData({
+      nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
+      tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
+    });
+    setIsModalOpen(true);
+  };
 
   // 1. EFEK "MATA SISTEM": Menarik data secara Real-Time dari Firebase
   useEffect(() => {
@@ -43,7 +63,9 @@ const ReservasiPage = () => {
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const target = e.target as HTMLInputElement;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    setFormData({ ...formData, [target.name]: value });
   };
 
   // 2. OTAK SISTEM: Fungsi Simpan & Logika Pencegah Double Booking
@@ -79,6 +101,8 @@ const ReservasiPage = () => {
 
       // b. Cek satu per satu jadwal tamu lama
       querySnapshot.forEach((doc) => {
+        if (doc.id === editingId) return; // Lewati pengecekan dengan dirinya sendiri saat edit
+
         const data = doc.data() as ReservationData;
         const oldIn = new Date(data.tgl_checkin);
         const oldOut = new Date(data.tgl_checkout);
@@ -102,12 +126,18 @@ const ReservasiPage = () => {
       // ----------------------------------------------------
 
       // Jika aman (tidak bentrok), sistem lanjut menyimpan ke Cloud
-      await addDoc(collection(db, "reservasi"), formData);
-      alert("✅ Puji Tuhan! Reservasi berhasil disimpan tanpa konflik.");
+      if (editingId) {
+        await updateDoc(doc(db, "reservasi", editingId), formData as any);
+        alert("✅ Reservasi berhasil diperbarui.");
+      } else {
+        await addDoc(collection(db, "reservasi"), formData);
+        alert("✅ Puji Tuhan! Reservasi berhasil disimpan tanpa konflik.");
+      }
+      
       setIsModalOpen(false);
       setFormData({
-        nama_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
-        tgl_checkin: "", tgl_checkout: "", status_bayar: "Belum Bayar", total_tagihan: "",
+        nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
+        tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
       });
     } catch (error) {
       console.error("Error menambah data: ", error);
@@ -120,8 +150,28 @@ const ReservasiPage = () => {
   // Fungsi pembantu warna status bayar
   const getStatusColor = (status: string) => {
     if (status === "Lunas") return "bg-emerald-100 text-emerald-800 border-emerald-200";
-    if (status === "DP") return "bg-amber-100 text-amber-800 border-amber-200";
+    if (status === "DP" || status === "DP/Uang Muka") return "bg-amber-100 text-amber-800 border-amber-200";
+    if (status === "Batal") return "bg-rose-100 text-rose-800 border-rose-200";
     return "bg-rose-100 text-rose-800 border-rose-200"; // Belum Bayar
+  };
+
+  const getJumlahMalam = (inDate: string, outDate: string) => {
+    if (!inDate || !outDate) return "-";
+    const diff = new Date(outDate).getTime() - new Date(inDate).getTime();
+    const days = diff / (1000 * 3600 * 24);
+    return days > 0 ? `${days} Malam` : "-";
+  };
+
+  const handleToggleKamarSiap = async (id: string | undefined, currentStatus: boolean) => {
+    if (!id) return;
+    try {
+      await updateDoc(doc(db, "reservasi", id), {
+        kamar_siap: !currentStatus
+      });
+    } catch (error) {
+      console.error("Error updating kamar_siap:", error);
+      alert("❌ Gagal memperbarui status kamar.");
+    }
   };
 
   // Aksi hapus reservasi
@@ -150,7 +200,7 @@ const ReservasiPage = () => {
             <h2 className="text-title-md2 font-semibold text-black dark:text-white">Daftar Tamu Homestay</h2>
             <p className="text-sm text-gray-500 mt-1">Kelola jadwal Rumsram dan Homestay REP.</p>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 rounded bg-primary py-2.5 px-6 font-medium text-white hover:bg-opacity-90 transition-all">
+          <button onClick={handleAddNewClick} className="flex items-center gap-2 rounded bg-primary py-2.5 px-6 font-medium text-white hover:bg-opacity-90 transition-all">
             + Tambah Reservasi
           </button>
         </div>
@@ -160,45 +210,93 @@ const ReservasiPage = () => {
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                  <th className="py-4 px-4 font-medium text-black dark:text-white">Nama Tamu & OTA</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white">Pilihan Kamar</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white">Jadwal Check-in/out</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white">Status Bayar</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">ID & Nama Tamu</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jml Tamu</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jml Malam</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Sumber Booking</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Tipe Kamar</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Harga Kamar</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-in</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-out</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jam Kedatangan</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Kamar Siap</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Bayar</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {/* 3. TAMPILAN DINAMIS: Me-looping data dari Cloud Database */}
                 {reservasiList.length === 0 ? (
                   <tr className="border-b border-stroke dark:border-strokedark">
-                    <td colSpan={4} className="py-8 text-center text-sm font-medium text-gray-500">
+                    <td colSpan={12} className="py-8 text-center text-sm font-medium text-gray-500">
                       Memuat data dari Cloud... (Atau belum ada reservasi)
                     </td>
                   </tr>
                 ) : (
                   reservasiList.map((item) => (
                     <tr key={item.id} className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 transition-colors">
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-xs text-gray-500">#{item.id?.slice(0, 6).toUpperCase()}</p>
                         <p className="font-semibold text-black dark:text-white">{item.nama_tamu}</p>
-                        <p className="text-xs text-gray-500">{item.sumber_booking} • {item.no_hp}</p>
+                        <p className="text-xs text-gray-500">{item.no_hp}</p>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-sm text-black dark:text-white">{item.jumlah_tamu ? `${item.jumlah_tamu} Orang` : "-"}</p>
+                      </td>
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-sm text-black dark:text-white">{getJumlahMalam(item.tgl_checkin, item.tgl_checkout)}</p>
+                      </td>
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-sm text-black dark:text-white">{item.sumber_booking}</p>
+                      </td>
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <p className="font-medium text-black dark:text-white">{item.id_kamar}</p>
                       </td>
-                      <td className="py-4 px-4">
-                        <p className="text-sm text-black dark:text-white">In: {item.tgl_checkin}</p>
-                        <p className="text-sm text-gray-500">Out: {item.tgl_checkout}</p>
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-sm text-black dark:text-white">
+                          {item.total_tagihan ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(Number(item.total_tagihan)) : "-"}
+                        </p>
                       </td>
-                      <td className="py-4 px-4 flex flex-col gap-2">
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-sm text-black dark:text-white">{item.tgl_checkin}</p>
+                      </td>
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-sm text-black dark:text-white">{item.tgl_checkout}</p>
+                      </td>
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <p className="text-sm font-medium text-primary">{item.jam_kedatangan || "-"}</p>
+                      </td>
+                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                        <label className="flex items-center justify-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={item.kamar_siap}
+                            onChange={() => handleToggleKamarSiap(item.id, item.kamar_siap)}
+                            className="w-5 h-5 rounded border-stroke cursor-pointer text-primary focus:ring-primary"
+                          />
+                        </label>
+                      </td>
+                      <td className="py-4 px-4 text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusColor(item.status_bayar)}`}>
                           {item.status_bayar}
                         </span>
-                        <button
-                          type="button"
-                          className="inline-flex items-center justify-center rounded bg-rose-500 px-2.5 py-1 text-xs font-medium text-white hover:bg-rose-600 transition"
-                          onClick={() => handleDeleteReservation(item.id)}
-                        >
-                          Hapus
-                        </button>
+                      </td>
+                      <td className="py-4 px-4 whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-2">
+                          <Link
+                            href={`/reservasi/${item.id}`}
+                            className="inline-flex items-center justify-center rounded bg-blue-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-600 transition"
+                          >
+                            Detail
+                          </Link>
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center rounded bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 transition"
+                            onClick={() => handleEditClick(item)}
+                          >
+                            Edit
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -208,45 +306,67 @@ const ReservasiPage = () => {
           </div>
         </div>
 
-        {/* MODAL FORMULIR (Tetap sama seperti sebelumnya) */}
+        {/* MODAL FORMULIR */}
         {isModalOpen && (
           <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-full max-w-2xl rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark overflow-y-auto max-h-[90vh]">
               <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex justify-between items-center">
-                <h3 className="font-medium text-black dark:text-white">Formulir Reservasi Baru</h3>
+                <h3 className="font-medium text-black dark:text-white">{editingId ? "Edit Reservasi" : "Formulir Reservasi Baru"}</h3>
                 <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-red-500 text-xl font-bold">&times;</button>
               </div>
               <form onSubmit={handleSubmit} className="p-6.5">
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-                  <div className="w-full xl:w-1/2">
+                  <div className="w-full xl:w-1/3">
                     <label className="mb-2.5 block text-black dark:text-white">Nama Tamu <span className="text-meta-1">*</span></label>
                     <input type="text" name="nama_tamu" required value={formData.nama_tamu} onChange={handleInputChange} placeholder="Masukkan nama" className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input" />
                   </div>
-                  <div className="w-full xl:w-1/2">
+                  <div className="w-full xl:w-1/3">
+                    <label className="mb-2.5 block text-black dark:text-white">Jumlah Tamu</label>
+                    <input type="number" name="jumlah_tamu" value={formData.jumlah_tamu} onChange={handleInputChange} placeholder="Misal: 2" min="1" className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input" />
+                  </div>
+                  <div className="w-full xl:w-1/3">
                     <label className="mb-2.5 block text-black dark:text-white">No. WhatsApp</label>
                     <input type="text" name="no_hp" value={formData.no_hp} onChange={handleInputChange} placeholder="Contoh: 0812..." className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input" />
                   </div>
                 </div>
 
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-                  <div className="w-full xl:w-1/2">
+                  <div className="w-full xl:w-1/3">
                     <label className="mb-2.5 block text-black dark:text-white">Tanggal Check-in <span className="text-meta-1">*</span></label>
                     <input type="date" name="tgl_checkin" required value={formData.tgl_checkin} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input" />
                   </div>
-                  <div className="w-full xl:w-1/2">
+                  <div className="w-full xl:w-1/3">
+                    <label className="mb-2.5 block text-black dark:text-white">Jam Kedatangan</label>
+                    <input type="time" name="jam_kedatangan" value={formData.jam_kedatangan} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input" />
+                  </div>
+                  <div className="w-full xl:w-1/3">
                     <label className="mb-2.5 block text-black dark:text-white">Tanggal Check-out <span className="text-meta-1">*</span></label>
                     <input type="date" name="tgl_checkout" required value={formData.tgl_checkout} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input" />
                   </div>
                 </div>
 
-                <div className="mb-4.5">
-                  <label className="mb-2.5 block text-black dark:text-white">Pilih Kamar Homestay <span className="text-meta-1">*</span></label>
-                  <select name="id_kamar" value={formData.id_kamar} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
-                    <option value="Double Room AC">Double Room AC - Rp 1.100.000/orang</option>
-                    <option value="Standard Room AC">Standard Room AC - Rp 950.000/orang</option>
-                    <option value="Standard Non-AC">Standard Non-AC - Rp 900.000/orang</option>
-                    <option value="Single Room">Single Room - Rp 550.000/orang</option>
-                  </select>
+                <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                  <div className="w-full xl:w-1/2">
+                    <label className="mb-2.5 block text-black dark:text-white">Pilih Kamar Homestay <span className="text-meta-1">*</span></label>
+                    <select name="id_kamar" value={formData.id_kamar} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
+                      <option value="Double Room AC">Double Room AC - Rp 1.100.000/orang</option>
+                      <option value="Standard Room AC">Standard Room AC - Rp 950.000/orang</option>
+                      <option value="Standard Non-AC">Standard Non-AC - Rp 900.000/orang</option>
+                      <option value="Single Room">Single Room - Rp 550.000/orang</option>
+                    </select>
+                  </div>
+                  <div className="w-full xl:w-1/2 flex items-center xl:mt-8">
+                    <label className="flex cursor-pointer items-center gap-3">
+                      <input
+                        type="checkbox"
+                        name="kamar_siap"
+                        checked={formData.kamar_siap}
+                        onChange={handleInputChange}
+                        className="w-5 h-5 cursor-pointer rounded border-stroke"
+                      />
+                      <span className="text-black dark:text-white font-medium">Kamar Sudah Siap</span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
@@ -269,12 +389,13 @@ const ReservasiPage = () => {
                       <option value="Belum Bayar">Belum Bayar</option>
                       <option value="DP">DP (Uang Muka)</option>
                       <option value="Lunas">Lunas</option>
+                      <option value="Batal">Batal</option>
                     </select>
                   </div>
                 </div>
 
                 <button type="submit" disabled={isLoading} className="flex w-full justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90 disabled:bg-gray-400 mt-6">
-                  {isLoading ? "Memproses..." : "Simpan Reservasi"}
+                  {isLoading ? "Memproses..." : (editingId ? "Simpan Perubahan" : "Simpan Reservasi")}
                 </button>
               </form>
             </div>
