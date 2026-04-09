@@ -127,7 +127,7 @@ const ReservasiPage = () => {
 
       // Jika aman (tidak bentrok), sistem lanjut menyimpan ke Cloud
       if (editingId) {
-        await updateDoc(doc(db, "reservasi", editingId), formData as any);
+        await updateDoc(doc(db, "reservasi", editingId), formData as ReservationData);
         alert("✅ Reservasi berhasil diperbarui.");
       } else {
         await addDoc(collection(db, "reservasi"), formData);
@@ -174,21 +174,7 @@ const ReservasiPage = () => {
     }
   };
 
-  // Aksi hapus reservasi
-  const handleDeleteReservation = async (id: string | undefined) => {
-    if (!id) return;
 
-    const shouldDelete = confirm("Apakah Anda yakin ingin menghapus reservasi ini? Tindakan ini tidak dapat dibatalkan.");
-    if (!shouldDelete) return;
-
-    try {
-      await deleteDoc(doc(db, "reservasi", id));
-      alert("✅ Reservasi berhasil dihapus.");
-    } catch (error) {
-      console.error("Error menghapus reservasi:", error);
-      alert("❌ Gagal menghapus reservasi. Coba lagi.");
-    }
-  };
 
   return (
     <>
@@ -295,6 +281,17 @@ const ReservasiPage = () => {
                             onClick={() => handleEditClick(item)}
                           >
                             Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center rounded bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600 transition"
+                            onClick={async () => {
+                              if (confirm('Yakin ingin menghapus reservasi ini?')) {
+                                await deleteDoc(doc(db, "reservasi", item.id!));
+                              }
+                            }}
+                          >
+                            Hapus
                           </button>
                         </div>
                       </td>

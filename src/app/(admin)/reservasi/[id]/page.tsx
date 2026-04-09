@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+
 import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import { useParams, useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
@@ -79,6 +80,7 @@ export default function BookingDetail() {
 
   return (
     <div>
+      // ...existing code tanpa logo...
       <PageBreadCrumb pageTitle="Detail Pemesanan Kamar" />
 
       <button 
