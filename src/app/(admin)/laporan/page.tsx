@@ -27,10 +27,23 @@ const toCurrency = (value: number) => {
   }).format(value);
 };
 
+
+const getMonthYear = (dateStr: string) => {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "Unknown";
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+};
+
+const monthYearToLabel = (monthYear: string) => {
+  const [year, month] = monthYear.split("-");
+  return `${year}-${month}`;
+};
+
 const LaporanPage = () => {
   const [reservasiList, setReservasiList] = useState<ReservationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
 
   useEffect(() => {
     const q = query(collection(db, "reservasi"));
@@ -54,27 +67,59 @@ const LaporanPage = () => {
     return () => unsubscribe();
   }, []);
 
+  // Group data by month-year
+  const monthlyData = useMemo(() => {
+    const map: Record<string, ReservationData[]> = {};
+    reservasiList.forEach((item) => {
+      const monthYear = getMonthYear(item.tgl_checkin);
+      if (!map[monthYear]) map[monthYear] = [];
+      map[monthYear].push(item);
+    });
+    return map;
+  }, [reservasiList]);
+
+  // List of available months (sorted desc)
+  const availableMonths = useMemo(() => {
+    return Object.keys(monthlyData).sort((a, b) => b.localeCompare(a));
+  }, [monthlyData]);
+
+  // Data for selected month
+  const filteredList = useMemo(() => {
+    if (!selectedMonth) return reservasiList;
+    return monthlyData[selectedMonth] || [];
+  }, [reservasiList, monthlyData, selectedMonth]);
+
+  // Rekap pemasukan bulanan (khusus status lunas)
+  const pemasukanBulanan = useMemo(() => {
+    const map: Record<string, number> = {};
+    reservasiList.forEach((item) => {
+      if (item.status_bayar?.toLowerCase() === "lunas") {
+        const monthYear = getMonthYear(item.tgl_checkin);
+        const billed = Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0;
+        map[monthYear] = (map[monthYear] || 0) + billed;
+      }
+    });
+    return map;
+  }, [reservasiList]);
+
+  // Totals for filtered data
   const totals = useMemo(() => {
-    return reservasiList.reduce(
+    return filteredList.reduce(
       (
         acc,
         item
       ): { lunas: number; dp: number; belumBayar: number; totalKeseluruhan: number } => {
         const billed = Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0;
         const target = item.status_bayar?.toLowerCase();
-
         if (target === "lunas") {
           acc.lunas += billed;
         } else if (target === "dp" || target === "dp/uang muka") {
           acc.dp += billed;
         } else if (target === "batal") {
-          // Do not add to total if cancelled? The previous code didn't handle batal explicitly, it added to belumBayar. 
-          // Let's just keep the old logic but add to belumBayar if not lunas/dp
           acc.belumBayar += billed;
         } else {
           acc.belumBayar += billed;
         }
-
         if (target !== "batal") {
             acc.totalKeseluruhan += billed;
         }
@@ -82,26 +127,22 @@ const LaporanPage = () => {
       },
       { lunas: 0, dp: 0, belumBayar: 0, totalKeseluruhan: 0 }
     );
-  }, [reservasiList]);
+  }, [filteredList]);
 
   const { kamarData, otaData } = useMemo(() => {
     const kData: Record<string, number> = {};
     const oData: Record<string, number> = {};
-
-    reservasiList.forEach((item) => {
-      // Hanya menghitung yang bukan batal
+    filteredList.forEach((item) => {
       if (item.status_bayar?.toLowerCase() !== "batal") {
         const billed = Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0;
         const kamar = item.id_kamar || "Lainnya";
         const ota = item.sumber_booking || "Lainnya";
-
         kData[kamar] = (kData[kamar] || 0) + billed;
         oData[ota] = (oData[ota] || 0) + billed;
       }
     });
-
     return { kamarData: kData, otaData: oData };
-  }, [reservasiList]);
+  }, [filteredList]);
 
   const chartOptions: ApexOptions = {
     chart: {
@@ -167,9 +208,10 @@ const LaporanPage = () => {
   };
   const otaChartSeries = [{ name: "Pemasukan", data: Object.values(otaData) }];
 
+  // Export CSV untuk data bulan yang dipilih
   const exportCsv = () => {
     const header = ["Nama Tamu", "No HP", "Sumber Booking", "Kamar", "Checkin", "Checkout", "Status", "Total Tagihan"];
-    const rows = reservasiList.map((item) => [
+    const rows = filteredList.map((item) => [
       item.nama_tamu,
       item.no_hp,
       item.sumber_booking,
@@ -179,22 +221,19 @@ const LaporanPage = () => {
       item.status_bayar,
       Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0,
     ]);
-
     const escapeCell = (value: string | number) => {
       const str = String(value).replace(/"/g, '""');
       return `"${str}"`;
     };
-
     const csvContent = [header, ...rows]
       .map((row) => row.map(escapeCell).join(","))
       .join("\n");
-
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-
+    const fileLabel = selectedMonth ? `-${selectedMonth}` : "";
     link.href = url;
-    link.setAttribute("download", `laporan-pemasukan-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `laporan-pemasukan${fileLabel}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -218,14 +257,51 @@ const LaporanPage = () => {
     <div>
       <PageBreadcrumb pageTitle="Laporan Pemasukan" />
 
+      {/* Filter Bulan */}
       <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Ringkasan Pemasukan</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Ringkasan Pemasukan</h2>
+          <select
+            className="ml-4 border rounded px-2 py-1 text-sm"
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+          >
+            <option value="">Semua Bulan</option>
+            {availableMonths.map((m) => (
+              <option key={m} value={m}>{monthYearToLabel(m)}</option>
+            ))}
+          </select>
+        </div>
         <button
           onClick={exportCsv}
           className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
         >
-          Export CSV
+          Export CSV {selectedMonth && `(Bulan ${monthYearToLabel(selectedMonth)})`}
         </button>
+      </div>
+
+      {/* Grafik Pemasukan Bulanan */}
+      <div className="mb-6">
+        <h3 className="text-base font-semibold text-gray-700 mb-2">Grafik Pemasukan Lunas per Bulan</h3>
+        <Chart
+          options={{
+            chart: { type: "bar", toolbar: { show: false } },
+            plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '45%' } },
+            dataLabels: { enabled: false },
+            xaxis: { categories: Object.keys(pemasukanBulanan).map(monthYearToLabel) },
+            yaxis: {
+              labels: {
+                formatter: (value: number) => new Intl.NumberFormat("id-ID", { notation: "compact" }).format(Number(value)),
+              }
+            },
+            colors: ["#10B981"],
+            tooltip: { y: { formatter: (val: number) => toCurrency(val) } }
+          }}
+          series={[{ name: "Lunas", data: Object.values(pemasukanBulanan) }]}
+          type="bar"
+          width="100%"
+          height={220}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
@@ -303,14 +379,14 @@ const LaporanPage = () => {
               </tr>
             </thead>
             <tbody>
-              {reservasiList.length === 0 ? (
+              {filteredList.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
                     Belum ada data reservasi
                   </td>
                 </tr>
               ) : (
-                reservasiList.map((item) => (
+                filteredList.map((item) => (
                   <tr key={item.id} className="border-b border-gray-200 dark:border-gray-700">
                     <td className="px-3 py-2">{item.nama_tamu}</td>
                     <td className="px-3 py-2">{item.id_kamar}</td>

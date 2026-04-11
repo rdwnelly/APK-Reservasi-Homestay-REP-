@@ -19,6 +19,7 @@ interface ReservationData {
   kamar_siap: boolean;
   status_bayar: string;
   total_tagihan: string;
+  status_kebersihan?: "siap" | "dipakai" | "perlu_bersih";
 }
 
 const ReservasiPage = () => {
@@ -32,11 +33,19 @@ const ReservasiPage = () => {
   const [formData, setFormData] = useState<ReservationData>({
     nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
     tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
+    status_kebersihan: "siap"
   });
+  // Fungsi pembantu status kebersihan
+  const getKebersihanLabel = (status?: string) => {
+    if (status === "siap") return { label: "🟢 Siap Huni", color: "bg-green-100 text-green-800 border-green-200" };
+    if (status === "dipakai") return { label: "🔴 Sedang Dipakai", color: "bg-red-100 text-red-800 border-red-200" };
+    if (status === "perlu_bersih") return { label: "🟡 Perlu Dibersihkan", color: "bg-yellow-100 text-yellow-800 border-yellow-200" };
+    return { label: "-", color: "bg-gray-100 text-gray-800 border-gray-200" };
+  };
 
   const handleEditClick = (item: ReservationData) => {
     setEditingId(item.id || null);
-    setFormData(item);
+    setFormData({ ...item, status_kebersihan: item.status_kebersihan || "siap" });
     setIsModalOpen(true);
   };
 
@@ -45,6 +54,7 @@ const ReservasiPage = () => {
     setFormData({
       nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
       tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
+      status_kebersihan: "siap"
     });
     setIsModalOpen(true);
   };
@@ -138,6 +148,7 @@ const ReservasiPage = () => {
       setFormData({
         nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
         tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
+        status_kebersihan: "siap"
       });
     } catch (error) {
       console.error("Error menambah data: ", error);
@@ -205,8 +216,8 @@ const ReservasiPage = () => {
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-in</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-out</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jam Kedatangan</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Kamar Siap</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Bayar</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Kebersihan</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Aksi</th>
                 </tr>
               </thead>
@@ -214,7 +225,7 @@ const ReservasiPage = () => {
                 {/* 3. TAMPILAN DINAMIS: Me-looping data dari Cloud Database */}
                 {reservasiList.length === 0 ? (
                   <tr className="border-b border-stroke dark:border-strokedark">
-                    <td colSpan={12} className="py-8 text-center text-sm font-medium text-gray-500">
+                    <td colSpan={11} className="py-8 text-center text-sm font-medium text-gray-500">
                       Memuat data dari Cloud... (Atau belum ada reservasi)
                     </td>
                   </tr>
@@ -253,19 +264,31 @@ const ReservasiPage = () => {
                         <p className="text-sm font-medium text-primary">{item.jam_kedatangan || "-"}</p>
                       </td>
                       <td className="py-4 px-4 text-center whitespace-nowrap">
-                        <label className="flex items-center justify-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={item.kamar_siap}
-                            onChange={() => handleToggleKamarSiap(item.id, item.kamar_siap)}
-                            className="w-5 h-5 rounded border-stroke cursor-pointer text-primary focus:ring-primary"
-                          />
-                        </label>
-                      </td>
-                      <td className="py-4 px-4 text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusColor(item.status_bayar)}`}>
                           {item.status_bayar}
                         </span>
+                      </td>
+                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getKebersihanLabel(item.status_kebersihan).color}`}>
+                          {getKebersihanLabel(item.status_kebersihan).label}
+                        </span>
+                        <div className="flex gap-1 mt-1 justify-center">
+                          <button
+                            type="button"
+                            className="text-xs px-2 py-1 rounded bg-green-100 text-green-800 border border-green-200 hover:bg-green-200"
+                            onClick={async () => await updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "siap" })}
+                          >🟢</button>
+                          <button
+                            type="button"
+                            className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800 border border-yellow-200 hover:bg-yellow-200"
+                            onClick={async () => await updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "perlu_bersih" })}
+                          >🟡</button>
+                          <button
+                            type="button"
+                            className="text-xs px-2 py-1 rounded bg-red-100 text-red-800 border border-red-200 hover:bg-red-200"
+                            onClick={async () => await updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "dipakai" })}
+                          >🔴</button>
+                        </div>
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
                         <div className="flex items-center justify-center gap-2">
@@ -280,7 +303,7 @@ const ReservasiPage = () => {
                             className="inline-flex items-center justify-center rounded bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 transition"
                             onClick={() => handleEditClick(item)}
                           >
-                            Edit
+                            Ubah
                           </button>
                           <button
                             type="button"
@@ -308,7 +331,7 @@ const ReservasiPage = () => {
           <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-full max-w-2xl rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark overflow-y-auto max-h-[90vh]">
               <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex justify-between items-center">
-                <h3 className="font-medium text-black dark:text-white">{editingId ? "Edit Reservasi" : "Formulir Reservasi Baru"}</h3>
+                <h3 className="font-medium text-black dark:text-white">{editingId ? "Ubah Reservasi" : "Formulir Reservasi Baru"}</h3>
                 <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-red-500 text-xl font-bold">&times;</button>
               </div>
               <form onSubmit={handleSubmit} className="p-6.5">
@@ -391,6 +414,14 @@ const ReservasiPage = () => {
                   </div>
                 </div>
 
+                <div className="mb-4">
+                  <label className="mb-2.5 block text-black dark:text-white">Status Kebersihan Kamar</label>
+                  <select name="status_kebersihan" value={formData.status_kebersihan} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
+                    <option value="siap">🟢 Siap Huni</option>
+                    <option value="dipakai">🔴 Sedang Dipakai</option>
+                    <option value="perlu_bersih">🟡 Perlu Dibersihkan</option>
+                  </select>
+                </div>
                 <button type="submit" disabled={isLoading} className="flex w-full justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90 disabled:bg-gray-400 mt-6">
                   {isLoading ? "Memproses..." : (editingId ? "Simpan Perubahan" : "Simpan Reservasi")}
                 </button>
