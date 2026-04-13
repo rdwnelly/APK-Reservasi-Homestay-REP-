@@ -137,7 +137,7 @@ const ReservasiPage = () => {
 
       // Jika aman (tidak bentrok), sistem lanjut menyimpan ke Cloud
       if (editingId) {
-        await updateDoc(doc(db, "reservasi", editingId), formData as ReservationData);
+        await updateDoc(doc(db, "reservasi", editingId), formData as any);
         alert("✅ Reservasi berhasil diperbarui.");
       } else {
         await addDoc(collection(db, "reservasi"), formData);
@@ -396,6 +396,8 @@ const ReservasiPage = () => {
                       <option value="Traveloka">Traveloka</option>
                       <option value="Tiket.com">Tiket.com</option>
                       <option value="Agoda">Agoda</option>
+                      <option value="Airbnb">Airbnb</option>
+                      <option value="Booking.com">Booking.com</option>
                     </select>
                   </div>
                   <div className="w-full xl:w-1/3">
