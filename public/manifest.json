@@ -1,0 +1,21 @@
+{
+  "name": "Reservasi Homestay REP",
+  "short_name": "REP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#101828",
+  "description": "Aplikasi Reservasi Homestay REP",
+  "icons": [
+    {
+      "src": "/images/logo/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/images/logo/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
