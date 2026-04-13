@@ -19,7 +19,11 @@ interface CalendarEvent extends EventInput {
   };
 }
 
-const Calendar: React.FC = () => {
+interface CalendarProps {
+  events?: EventInput[];
+}
+
+const Calendar: React.FC<CalendarProps> = ({ events: propEvents }) => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
@@ -49,7 +53,11 @@ const Calendar: React.FC = () => {
     },
   ];
 
-  const [events, setEvents] = useState<CalendarEvent[]>(initialCalendarEvents);
+  const [events, setEvents] = useState<CalendarEvent[]>(() =>
+    propEvents && propEvents.length
+      ? (propEvents as CalendarEvent[])
+      : initialCalendarEvents
+  );
   const eventIdRef = useRef(0);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
@@ -268,7 +276,12 @@ const Calendar: React.FC = () => {
 };
 
 const renderEventContent = (eventInfo: EventContentArg) => {
-  const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`;
+  const ext: any = (eventInfo.event as any).extendedProps || {};
+  let calendarKey = "primary";
+  if (typeof ext.calendar === "string" && ext.calendar) calendarKey = ext.calendar;
+  else if (typeof ext.type === "string" && ext.type) calendarKey = ext.type;
+  const colorClass = `fc-bg-${String(calendarKey).toLowerCase()}`;
+
   return (
     <div
       className={`event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm`}

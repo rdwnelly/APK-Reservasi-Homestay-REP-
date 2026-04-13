@@ -369,10 +369,9 @@ const ReservasiPage = () => {
                   <div className="w-full xl:w-1/2">
                     <label className="mb-2.5 block text-black dark:text-white">Pilih Kamar Homestay <span className="text-meta-1">*</span></label>
                     <select name="id_kamar" value={formData.id_kamar} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
-                      <option value="Double Room AC">Double Room AC - Rp 1.100.000/orang</option>
-                      <option value="Standard Room AC">Standard Room AC - Rp 950.000/orang</option>
-                      <option value="Standard Non-AC">Standard Non-AC - Rp 900.000/orang</option>
-                      <option value="Single Room">Single Room - Rp 550.000/orang</option>
+                      <option value="Double Room with AC">~ Double Room with AC ~ 1.100.000 (1 kamar)</option>
+                      <option value="Double Room with Fan">~ Double Room with Fan ~ 800.000 (2 kamar)</option>
+                      <option value="Single Room with Fan">~ Single Room with Fan ~ 600.000 (2 kamar)</option>
                     </select>
                   </div>
                   <div className="w-full xl:w-1/2 flex items-center xl:mt-8">
