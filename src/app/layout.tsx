@@ -4,6 +4,7 @@ import "flatpickr/dist/flatpickr.css";
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import RegisterSW from '@/components/pwa/RegisterSW';
+import InstallPrompt from '@/components/pwa/InstallPrompt';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
           <SidebarProvider>
             {children}
             <RegisterSW />
+            <InstallPrompt />
           </SidebarProvider>
         </ThemeProvider>
       </body>
