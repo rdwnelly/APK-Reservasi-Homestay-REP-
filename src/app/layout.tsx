@@ -5,6 +5,7 @@ import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import RegisterSW from '@/components/pwa/RegisterSW';
 import InstallPrompt from '@/components/pwa/InstallPrompt';
+import NotificationSetup from '@/components/pwa/NotificationSetup';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -31,6 +32,8 @@ export default function RootLayout({
             {children}
             <RegisterSW />
             <InstallPrompt />
+            {/* Notification setup: request permission and obtain FCM token */}
+            <NotificationSetup />
           </SidebarProvider>
         </ThemeProvider>
       </body>
