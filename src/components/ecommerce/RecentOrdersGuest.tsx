@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import Badge from "../ui/badge/Badge";
 import { getStatusReservasiLabel } from "@/utils/reservationUtils";
 import { useAutoArchiveReservations } from "@/hooks/useAutoArchive";
 
@@ -214,22 +213,19 @@ export default function RecentOrdersGuest() {
                     </span>
                   </TableCell>
                   <TableCell className="py-3 text-start">
-                    <Badge
-                      className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                      text={getJumlahMalam(guest.tgl_checkin, guest.tgl_checkout)}
-                    />
+                    <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
+                      {getJumlahMalam(guest.tgl_checkin, guest.tgl_checkout)}
+                    </span>
                   </TableCell>
                   <TableCell className="py-3 text-center">
-                    <Badge
-                      className={`${getStatusReservasiLabel(guest.status_reservasi).color} border`}
-                      text={getStatusReservasiLabel(guest.status_reservasi).label}
-                    />
+                    <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusReservasiLabel(guest.status_reservasi).color}`}>
+                      {getStatusReservasiLabel(guest.status_reservasi).label}
+                    </span>
                   </TableCell>
                   <TableCell className="py-3 text-center">
-                    <Badge
-                      className={`${getStatusColor(guest.status_bayar)} border`}
-                      text={guest.status_bayar}
-                    />
+                    <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusColor(guest.status_bayar)}`}>
+                      {guest.status_bayar}
+                    </span>
                   </TableCell>
                 </TableRow>
               ))}
