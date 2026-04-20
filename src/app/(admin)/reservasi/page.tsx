@@ -5,6 +5,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, getDocs, where, updateDoc } from "firebase/firestore";
 import Link from "next/link";
+import { checkAndUpdateReservationStatus, getStatusReservasiLabel } from "@/utils/reservationUtils";
 
 interface ReservationData {
   id?: string;
@@ -20,6 +21,8 @@ interface ReservationData {
   status_bayar: string;
   total_tagihan: string;
   status_kebersihan?: "siap" | "dipakai" | "perlu_bersih";
+  status_reservasi?: "Aktif" | "DP" | "Selesai" | "Batal";
+  updated_at?: string;
 }
 
 const ReservasiPage = () => {
@@ -33,7 +36,7 @@ const ReservasiPage = () => {
   const [formData, setFormData] = useState<ReservationData>({
     nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
     tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
-    status_kebersihan: "siap"
+    status_kebersihan: "siap", status_reservasi: "Aktif"
   });
   // Fungsi pembantu status kebersihan
   const getKebersihanLabel = (status?: string) => {
@@ -54,13 +57,16 @@ const ReservasiPage = () => {
     setFormData({
       nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
       tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
-      status_kebersihan: "siap"
+      status_kebersihan: "siap", status_reservasi: "Aktif"
     });
     setIsModalOpen(true);
   };
 
   // 1. EFEK "MATA SISTEM": Menarik data secara Real-Time dari Firebase
   useEffect(() => {
+    // Jalankan auto-update status terlebih dahulu saat page load
+    checkAndUpdateReservationStatus();
+
     const q = query(collection(db, "reservasi"));
     // onSnapshot membuat data langsung ter-update tanpa perlu refresh browser
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -216,6 +222,7 @@ const ReservasiPage = () => {
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-in</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-out</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jam Kedatangan</th>
+                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Reservasi</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Bayar</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Kebersihan</th>
                   <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Aksi</th>
@@ -262,6 +269,11 @@ const ReservasiPage = () => {
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
                         <p className="text-sm font-medium text-primary">{item.jam_kedatangan || "-"}</p>
+                      </td>
+                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusReservasiLabel(item.status_reservasi).color}`}>
+                          {getStatusReservasiLabel(item.status_reservasi).label}
+                        </span>
                       </td>
                       <td className="py-4 px-4 text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusColor(item.status_bayar)}`}>
@@ -415,8 +427,28 @@ const ReservasiPage = () => {
                   </div>
                 </div>
 
+                <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                  <div className="w-full xl:w-1/2">
+                    <label className="mb-2.5 block text-black dark:text-white">Status Reservasi</label>
+                    <select name="status_reservasi" value={formData.status_reservasi || "Aktif"} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
+                      <option value="Aktif">🟢 Aktif (Sedang/akan menginap)</option>
+                      <option value="DP">🟡 DP (Sudah bayar DP)</option>
+                      <option value="Selesai">✅ Selesai (Checked-out)</option>
+                      <option value="Batal">❌ Batal</option>
+                    </select>
+                  </div>
+                  <div className="w-full xl:w-1/2">
+                    <label className="mb-2.5 block text-black dark:text-white">Status Kebersihan Kamar</label>
+                    <select name="status_kebersihan" value={formData.status_kebersihan} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
+                      <option value="siap">🟢 Siap Huni</option>
+                      <option value="dipakai">🔴 Sedang Dipakai</option>
+                      <option value="perlu_bersih">🟡 Perlu Dibersihkan</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className="mb-4">
-                  <label className="mb-2.5 block text-black dark:text-white">Status Kebersihan Kamar</label>
+                  <label className="mb-2.5 block text-black dark:text-white">Status Kebersihan Kamar (Alternatif)</label>
                   <select name="status_kebersihan" value={formData.status_kebersihan} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
                     <option value="siap">🟢 Siap Huni</option>
                     <option value="dipakai">🔴 Sedang Dipakai</option>

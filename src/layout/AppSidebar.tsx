@@ -78,6 +78,17 @@ const AppSidebar: React.FC = () => {
                 Kalender Reservasi
               </Link>
             </li>
+
+            {/* Menu 5: Riwayat Kunjungan */}
+            <li>
+              <Link
+                href="/riwayat-kunjungan"
+                className="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
+              >
+                <span className="text-xl">📜</span>
+                Riwayat Kunjungan
+              </Link>
+            </li>
           </ul>
         </nav>
 

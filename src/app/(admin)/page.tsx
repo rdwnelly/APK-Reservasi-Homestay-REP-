@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
+import RecentOrdersGuest from "@/components/ecommerce/RecentOrdersGuest";
 
 export default function DashboardUtama() {
   const [stats, setStats] = useState({
@@ -167,6 +168,11 @@ export default function DashboardUtama() {
         <p className="text-sm text-amber-800 dark:text-gray-400">
           Gunakan menu <strong>Kelola Reservasi</strong> untuk menambahkan tamu baru. Pastikan nomor WhatsApp tamu diisi agar mempermudah staf menghubungi tamu terkait pelunasan tagihan.
         </p>
+      </div>
+
+      {/* TABEL TAMU AKTIF */}
+      <div className="mt-8">
+        <RecentOrdersGuest />
       </div>
     </>
   );
