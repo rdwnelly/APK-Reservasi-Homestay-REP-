@@ -5,6 +5,7 @@ import {
   query, 
   updateDoc, 
   doc,
+  deleteDoc,
   where,
   Timestamp 
 } from "firebase/firestore";
@@ -40,11 +41,8 @@ interface ReservationData {
  */
 export async function checkAndUpdateReservationStatus(): Promise<void> {
   try {
-    // Ambil semua reservasi dengan status "Aktif" atau "DP"
-    const q = query(
-      collection(db, "reservasi"),
-      where("status_reservasi", "in", ["Aktif", "DP"])
-    );
+    // Ambil semua reservasi
+    const q = query(collection(db, "reservasi"));
     
     const querySnapshot = await getDocs(q);
     const now = new Date();
@@ -56,8 +54,13 @@ export async function checkAndUpdateReservationStatus(): Promise<void> {
       const checkoutDate = new Date(data.tgl_checkout);
       checkoutDate.setHours(0, 0, 0, 0);
 
-      // Jika checkout date sudah lewat, ubah status menjadi "Selesai"
-      if (checkoutDate <= now && data.status_reservasi !== "Selesai") {
+      // Jika checkout date sudah lewat (kemarin atau sebelumnya), ubah status menjadi "Selesai"
+      // Berlaku untuk semua reservasi yang belum "Selesai" atau "Batal"
+      if (
+        checkoutDate < now && 
+        data.status_reservasi !== "Selesai" && 
+        data.status_reservasi !== "Batal"
+      ) {
         await updateDoc(doc(db, "reservasi", docSnapshot.id), {
           status_reservasi: "Selesai",
           updated_at: new Date().toISOString(),

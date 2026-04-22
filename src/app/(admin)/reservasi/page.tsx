@@ -70,7 +70,15 @@ const ReservasiPage = () => {
     const q = query(collection(db, "reservasi"));
     // onSnapshot membuat data langsung ter-update tanpa perlu refresh browser
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as ReservationData }));
+      let data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as ReservationData }));
+      
+      // Filter hanya yang Aktif, DP, atau yang belum memiliki field status_reservasi (data lama)
+      data = data.filter(item => 
+        !item.status_reservasi || 
+        item.status_reservasi === "Aktif" || 
+        item.status_reservasi === "DP"
+      );
+
       // Urutkan berdasarkan tanggal check-in (opsional, untuk kerapian)
       data.sort((a, b) => new Date(a.tgl_checkin).getTime() - new Date(b.tgl_checkin).getTime());
       setReservasiList(data as ReservationData[]);
@@ -316,17 +324,6 @@ const ReservasiPage = () => {
                             onClick={() => handleEditClick(item)}
                           >
                             Ubah
-                          </button>
-                          <button
-                            type="button"
-                            className="inline-flex items-center justify-center rounded bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600 transition"
-                            onClick={async () => {
-                              if (confirm('Yakin ingin menghapus reservasi ini?')) {
-                                await deleteDoc(doc(db, "reservasi", item.id!));
-                              }
-                            }}
-                          >
-                            Hapus
                           </button>
                         </div>
                       </td>
