@@ -67,6 +67,10 @@ export default function KalenderReservasi() {
 
           setEvents([...reservationEvents, ...holidayEvents]);
           setLoading(false);
+        }, (error) => {
+          console.warn("Firestore onSnapshot error:", error.message);
+          setError("Gagal memuat data kalender.");
+          setLoading(false);
         });
       } catch (err: any) {
         setError("Gagal memuat data kalender");

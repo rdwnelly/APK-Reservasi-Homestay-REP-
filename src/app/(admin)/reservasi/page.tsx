@@ -82,6 +82,8 @@ const ReservasiPage = () => {
       // Urutkan berdasarkan tanggal check-in (opsional, untuk kerapian)
       data.sort((a, b) => new Date(a.tgl_checkin).getTime() - new Date(b.tgl_checkin).getTime());
       setReservasiList(data as ReservationData[]);
+    }, (error) => {
+      console.warn("Firestore onSnapshot error:", error.message);
     });
     return () => unsubscribe();
   }, []);

@@ -53,6 +53,9 @@ export default function RiwayatKunjunganPage() {
 
       setRiwayatList(data);
       setIsLoading(false);
+    }, (error) => {
+      console.warn("Firestore onSnapshot error:", error.message);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();

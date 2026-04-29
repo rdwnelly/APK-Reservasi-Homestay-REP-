@@ -55,6 +55,9 @@ export default function RecentOrdersGuest() {
 
       setGuestList(data);
       setIsLoading(false);
+    }, (error) => {
+      console.warn("Firestore onSnapshot error:", error.message);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();

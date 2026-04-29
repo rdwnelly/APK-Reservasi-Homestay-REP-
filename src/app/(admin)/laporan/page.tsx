@@ -58,7 +58,7 @@ const LaporanPage = () => {
         setLoading(false);
       },
       (err) => {
-        console.error("Failed to load reservation data:", err);
+        console.warn("Failed to load reservation data:", err.message);
         setError("Gagal memuat data. Coba refresh.");
         setLoading(false);
       }

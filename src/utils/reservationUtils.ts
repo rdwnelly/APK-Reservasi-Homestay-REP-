@@ -72,7 +72,7 @@ export async function checkAndUpdateReservationStatus(): Promise<void> {
       }
     }
   } catch (error) {
-    console.error("❌ Error dalam checkAndUpdateReservationStatus:", error);
+    console.warn("❌ Peringatan: checkAndUpdateReservationStatus gagal (mungkin karena belum login):", error instanceof Error ? error.message : String(error));
   }
 }
 
