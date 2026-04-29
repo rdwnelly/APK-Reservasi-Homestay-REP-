@@ -36,8 +36,8 @@ export default function SignInForm() {
       });
       
       router.push("/admin"); // Redirect to admin after successful sign in
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
+    } catch (error: any) {
+      console.warn("Error signing in with Google:", error?.message || error);
       alert("Failed to sign in with Google. Please try again.");
     } finally {
       setLoading(false);

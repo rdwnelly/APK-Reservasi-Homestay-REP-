@@ -50,8 +50,8 @@ export const useUserProfile = () => {
             };
             setProfile(newProfile);
           }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
+        } catch (error: any) {
+          console.warn("Error fetching user profile:", error?.message || error);
         }
       } else {
         setProfile(null);

@@ -37,8 +37,8 @@ export default function SignUpForm() {
       });
       setShowAdditionalModal(false);
       router.push("/admin");
-    } catch (error) {
-      console.error("Error saving additional data:", error);
+    } catch (error: any) {
+      console.warn("Error saving additional data:", error?.message || error);
       alert("Failed to save profile data. Please try again.");
     }
   };
@@ -55,8 +55,8 @@ export default function SignUpForm() {
         photoURL: user.photoURL || "",
       });
       setShowAdditionalModal(true);
-    } catch (error) {
-      console.error("Error signing up with Google:", error);
+    } catch (error: any) {
+      console.warn("Error signing up with Google:", error?.message || error);
       alert("Failed to sign up with Google. Please try again.");
     } finally {
       setLoading(false);
