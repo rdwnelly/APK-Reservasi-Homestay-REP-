@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { getStatusReservasiLabel, checkAndUpdateReservationStatus } from "@/utils/reservationUtils";
+import { getStatusReservasiLabel, checkAndUpdateReservationStatus, formatDate } from "@/utils/reservationUtils";
 
 interface RiwayatReservasi {
   id: string;
@@ -271,12 +271,12 @@ export default function RiwayatKunjunganPage() {
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">
-                          {item.tgl_checkin}
+                          {formatDate(item.tgl_checkin)}
                         </p>
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">
-                          {item.tgl_checkout}
+                          {formatDate(item.tgl_checkout)}
                         </p>
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">

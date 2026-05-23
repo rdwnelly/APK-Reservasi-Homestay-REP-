@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import PageBreadCrumb from '@/components/common/PageBreadCrumb';
 import { useParams, useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
+import { formatDate } from '@/utils/reservationUtils';
 import { doc, getDoc } from 'firebase/firestore';
 
 interface ReservationData {
@@ -134,12 +135,12 @@ export default function BookingDetail() {
               <div className="flex justify-between">
                 <span className="text-gray-500">Jadwal Check-in</span>
                 <span className="font-medium text-gray-800 dark:text-gray-200">
-                  {data.tgl_checkin} {data.jam_kedatangan && `(${data.jam_kedatangan})`}
+                  {formatDate(data.tgl_checkin)} {data.jam_kedatangan && `(${data.jam_kedatangan})`}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Jadwal Check-out</span>
-                <span className="font-medium text-gray-800 dark:text-gray-200">{data.tgl_checkout}</span>
+                <span className="font-medium text-gray-800 dark:text-gray-200">{formatDate(data.tgl_checkout)}</span>
               </div>
             </div>
           </div>

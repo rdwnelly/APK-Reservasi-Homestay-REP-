@@ -5,6 +5,7 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { db } from "@/lib/firebase";
+import { formatDate } from "@/utils/reservationUtils";
 import { collection, onSnapshot, query } from "firebase/firestore";
 
 interface ReservationData {
@@ -370,12 +371,12 @@ const LaporanPage = () => {
           <table className="min-w-full text-left text-sm">
             <thead>
               <tr className="bg-gray-100 text-xs uppercase text-gray-600">
-                <th className="px-3 py-2">Tamu</th>
-                <th className="px-3 py-2">Kamar</th>
-                <th className="px-3 py-2">Check-in</th>
-                <th className="px-3 py-2">Check-out</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">Tagihan</th>
+                <th className="px-3 py-2 whitespace-nowrap">Tamu</th>
+                <th className="px-3 py-2 whitespace-nowrap">Kamar</th>
+                <th className="px-3 py-2 whitespace-nowrap">Check-in</th>
+                <th className="px-3 py-2 whitespace-nowrap">Check-out</th>
+                <th className="px-3 py-2 whitespace-nowrap">Status</th>
+                <th className="px-3 py-2 whitespace-nowrap">Tagihan</th>
               </tr>
             </thead>
             <tbody>
@@ -388,12 +389,12 @@ const LaporanPage = () => {
               ) : (
                 filteredList.map((item) => (
                   <tr key={item.id} className="border-b border-gray-200 dark:border-gray-700">
-                    <td className="px-3 py-2">{item.nama_tamu}</td>
-                    <td className="px-3 py-2">{item.id_kamar}</td>
-                    <td className="px-3 py-2">{item.tgl_checkin}</td>
-                    <td className="px-3 py-2">{item.tgl_checkout}</td>
-                    <td className="px-3 py-2">{item.status_bayar}</td>
-                    <td className="px-3 py-2">{toCurrency(Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0)}</td>
+                    <td className="px-3 py-2 whitespace-nowrap">{item.nama_tamu}</td>
+                    <td className="px-3 py-2 whitespace-nowrap">{item.id_kamar}</td>
+                    <td className="px-3 py-2 whitespace-nowrap">{formatDate(item.tgl_checkin)}</td>
+                    <td className="px-3 py-2 whitespace-nowrap">{formatDate(item.tgl_checkout)}</td>
+                    <td className="px-3 py-2 whitespace-nowrap">{item.status_bayar}</td>
+                    <td className="px-3 py-2 whitespace-nowrap">{toCurrency(Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0)}</td>
                   </tr>
                 ))
               )}

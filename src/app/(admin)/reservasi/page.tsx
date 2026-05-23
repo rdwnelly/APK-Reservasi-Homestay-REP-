@@ -5,7 +5,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, getDocs, where, updateDoc } from "firebase/firestore";
 import Link from "next/link";
-import { checkAndUpdateReservationStatus, getStatusReservasiLabel } from "@/utils/reservationUtils";
+import { checkAndUpdateReservationStatus, getStatusReservasiLabel, formatDate } from "@/utils/reservationUtils";
 
 interface ReservationData {
   id?: string;
@@ -143,7 +143,7 @@ const ReservasiPage = () => {
       // d. Jika bentrok, hentikan proses dan tolak!
       if (isOverlap && conflictingReservation) {
         const conflict = conflictingReservation as ReservationData;
-        const conflictInfo = `\n\nDetail Konflik:\n• Tamu: ${conflict.nama_tamu}\n• Check-in: ${conflict.tgl_checkin}\n• Check-out: ${conflict.tgl_checkout}`;
+        const conflictInfo = `\n\nDetail Konflik:\n• Tamu: ${conflict.nama_tamu}\n• Check-in: ${formatDate(conflict.tgl_checkin)}\n• Check-out: ${formatDate(conflict.tgl_checkout)}`;
 
         alert(`🚫 DOUBLE-BOOKING TERDETEKSI!\n\nKamar "${formData.id_kamar}" sudah dipesan oleh tamu lain pada rentang tanggal tersebut.\n\n${conflictInfo}\n\nSilakan pilih:\n• Kamar yang berbeda\n• Tanggal check-in/check-out yang berbeda`);
         setIsLoading(false);
@@ -272,10 +272,10 @@ const ReservasiPage = () => {
                         </p>
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
-                        <p className="text-sm text-black dark:text-white">{item.tgl_checkin}</p>
+                        <p className="text-sm text-black dark:text-white">{formatDate(item.tgl_checkin)}</p>
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
-                        <p className="text-sm text-black dark:text-white">{item.tgl_checkout}</p>
+                        <p className="text-sm text-black dark:text-white">{formatDate(item.tgl_checkout)}</p>
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
                         <p className="text-sm font-medium text-primary">{item.jam_kedatangan || "-"}</p>

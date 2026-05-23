@@ -121,3 +121,22 @@ export function getStatusReservasiLabel(
   if (status === "Batal") return { label: "❌ Batal", color: "bg-red-100 text-red-800 border-red-200" };
   return { label: "-", color: "bg-gray-100 text-gray-800 border-gray-200" };
 }
+
+/**
+ * Fungsi untuk memformat tanggal (YYYY-MM-DD) menjadi format dengan nama bulan (DD MMMM YYYY)
+ * Contoh: "2024-05-15" menjadi "15 Mei 2024"
+ */
+export function formatDate(dateString: string): string {
+  if (!dateString) return "-";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  } catch (e) {
+    return dateString;
+  }
+}

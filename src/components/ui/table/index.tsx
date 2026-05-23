@@ -55,10 +55,10 @@ const TableRow: React.FC<TableRowProps> = ({ children, className }) => {
 const TableCell: React.FC<TableCellProps> = ({
   children,
   isHeader = false,
-  className,
+  className = "",
 }) => {
   const CellTag = isHeader ? "th" : "td";
-  return <CellTag className={` ${className}`}>{children}</CellTag>;
+  return <CellTag className={`whitespace-nowrap ${className}`}>{children}</CellTag>;
 };
 
 export { Table, TableHeader, TableBody, TableRow, TableCell };

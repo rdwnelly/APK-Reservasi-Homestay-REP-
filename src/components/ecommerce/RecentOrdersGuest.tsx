@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { getStatusReservasiLabel } from "@/utils/reservationUtils";
+import { getStatusReservasiLabel, formatDate } from "@/utils/reservationUtils";
 import { useAutoArchiveReservations } from "@/hooks/useAutoArchive";
 
 interface GuestReservation {
@@ -207,12 +207,12 @@ export default function RecentOrdersGuest() {
                   </TableCell>
                   <TableCell className="py-3 text-start">
                     <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {guest.tgl_checkin}
+                      {formatDate(guest.tgl_checkin)}
                     </span>
                   </TableCell>
                   <TableCell className="py-3 text-start">
                     <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {guest.tgl_checkout}
+                      {formatDate(guest.tgl_checkout)}
                     </span>
                   </TableCell>
                   <TableCell className="py-3 text-start">
