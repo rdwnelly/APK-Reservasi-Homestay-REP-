@@ -32,6 +32,7 @@ const ReservasiPage = () => {
   
   // State baru untuk menampung daftar reservasi dari Database
   const [reservasiList, setReservasiList] = useState<ReservationData[]>([]);
+  const [reminderMessages, setReminderMessages] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<ReservationData>({
     nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
@@ -63,6 +64,51 @@ const ReservasiPage = () => {
   };
 
   // 1. EFEK "MATA SISTEM": Menarik data secara Real-Time dari Firebase
+  const sendCheckInReminders = (items: ReservationData[]) => {
+    if (typeof window === "undefined" || typeof Notification === "undefined") return;
+    if (Notification.permission !== "granted") return;
+
+    const now = new Date().getTime();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const notifiedIds = new Set<string>(
+      JSON.parse(localStorage.getItem("checkInReminderIds") || "[]") || []
+    );
+    const newMessages: string[] = [];
+    const newNotifiedIds = new Set(notifiedIds);
+
+    items.forEach((item) => {
+      if (!item.id || !item.tgl_checkin) return;
+      const checkInTime = new Date(item.tgl_checkin).getTime();
+      const diff = checkInTime - now;
+
+      if (diff > 0 && diff <= oneDayMs) {
+        if (!notifiedIds.has(item.id)) {
+          const arrivalText = item.jam_kedatangan ? ` pada jam ${item.jam_kedatangan}` : "";
+          const message = `Pengingat: Tamu ${item.nama_tamu} akan check-in besok${arrivalText}.`; 
+          newMessages.push(message);
+          newNotifiedIds.add(item.id);
+
+          try {
+            new Notification("Reminder Check-In Besok", {
+              body: message,
+              icon: "/favicon.ico",
+            });
+          } catch (error) {
+            console.error("Notification error:", error);
+          }
+        }
+      }
+    });
+
+    if (newMessages.length > 0) {
+      setReminderMessages((prev) => [...prev, ...newMessages]);
+      localStorage.setItem(
+        "checkInReminderIds",
+        JSON.stringify(Array.from(newNotifiedIds))
+      );
+    }
+  };
+
   useEffect(() => {
     // Jalankan auto-update status terlebih dahulu saat page load
     checkAndUpdateReservationStatus();
@@ -82,6 +128,7 @@ const ReservasiPage = () => {
       // Urutkan berdasarkan tanggal check-in (opsional, untuk kerapian)
       data.sort((a, b) => new Date(a.tgl_checkin).getTime() - new Date(b.tgl_checkin).getTime());
       setReservasiList(data as ReservationData[]);
+      sendCheckInReminders(data as ReservationData[]);
     }, (error) => {
       console.warn("Firestore onSnapshot error:", error.message);
     });
@@ -208,10 +255,20 @@ const ReservasiPage = () => {
       <PageBreadcrumb pageTitle="Kelola Reservasi" />
 
       <div className="flex flex-col gap-10 relative">
+        {reminderMessages.length > 0 && (
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 shadow-sm dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+            <p className="font-semibold">Reminder Check-In Besok</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              {reminderMessages.map((message, index) => (
+                <li key={index}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div className="flex justify-between items-center bg-white p-5 rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark">
           <div>
             <h2 className="text-title-md2 font-semibold text-black dark:text-white">Daftar Tamu Homestay</h2>
-            <p className="text-sm text-gray-500 mt-1">Kelola jadwal Rumsram dan Homestay REP.</p>
+            <p className="text-sm text-gray-500 mt-1">Kelola jadwal Rumsram dan Homestay ARUM.</p>
           </div>
           <button onClick={handleAddNewClick} className="flex items-center gap-2 rounded bg-primary py-2.5 px-6 font-medium text-white hover:bg-opacity-90 transition-all">
             + Tambah Reservasi
@@ -219,7 +276,97 @@ const ReservasiPage = () => {
         </div>
 
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
-          <div className="max-w-full overflow-x-auto">
+          <div className="space-y-4 lg:hidden">
+            {reservasiList.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-400">
+                Memuat data dari Cloud... (Atau belum ada reservasi)
+              </div>
+            ) : (
+              reservasiList.map((item) => (
+                <article key={item.id} className="overflow-hidden rounded-3xl border border-stroke bg-white p-4 shadow-sm transition hover:shadow-md dark:border-strokedark dark:bg-boxdark">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Tamu Homestay</p>
+                      <h3 className="mt-2 text-base font-semibold text-black dark:text-white">{item.nama_tamu}</h3>
+                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">#{item.id?.slice(0, 6).toUpperCase()} • {item.no_hp}</p>
+                    </div>
+                    <span className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(item.status_bayar)}`}>{item.status_bayar}</span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                    <div className="rounded-2xl bg-gray-50 p-3 dark:bg-gray-950">
+                      <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Kamar</p>
+                      <p className="mt-2 font-semibold text-black dark:text-white">{item.id_kamar}</p>
+                    </div>
+                    <div className="rounded-2xl bg-gray-50 p-3 dark:bg-gray-950">
+                      <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Booking</p>
+                      <p className="mt-2 font-semibold text-black dark:text-white">{item.sumber_booking}</p>
+                    </div>
+                    <div className="rounded-2xl bg-gray-50 p-3 dark:bg-gray-950">
+                      <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Check-in / out</p>
+                      <p className="mt-2 font-semibold text-black dark:text-white">{formatDate(item.tgl_checkin)} – {formatDate(item.tgl_checkout)}</p>
+                    </div>
+                    <div className="rounded-2xl bg-gray-50 p-3 dark:bg-gray-950">
+                      <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Jam Kedatangan</p>
+                      <p className="mt-2 font-semibold text-black dark:text-white">{item.jam_kedatangan || "-"}</p>
+                    </div>
+                    <div className="rounded-2xl bg-gray-50 p-3 dark:bg-gray-950">
+                      <p className="text-xs uppercase text-gray-500 dark:text-gray-400">Malam</p>
+                      <p className="mt-2 font-semibold text-black dark:text-white">{getJumlahMalam(item.tgl_checkin, item.tgl_checkout)}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 text-sm">
+                    <div className="flex items-center justify-between rounded-2xl bg-gray-50 p-3 dark:bg-gray-950">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Status Reservasi</span>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusReservasiLabel(item.status_reservasi).color}`}>{getStatusReservasiLabel(item.status_reservasi).label}</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-2xl bg-gray-50 p-3 dark:bg-gray-950">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Kebersihan</span>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getKebersihanLabel(item.status_kebersihan).color}`}>{getKebersihanLabel(item.status_kebersihan).label}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="rounded-2xl bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-gray-950 dark:text-gray-200 dark:hover:bg-gray-900"
+                        onClick={() => handleEditClick(item)}
+                      >
+                        Ubah
+                      </button>
+                      <Link
+                        href={`/reservasi/${item.id}`}
+                        className="rounded-2xl bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
+                      >
+                        Detail
+                      </Link>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="rounded-2xl border border-green-200 bg-green-50 px-3 py-2 text-xs font-medium text-green-800 hover:bg-green-100"
+                        onClick={async () => await updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "siap" })}
+                      >Siap</button>
+                      <button
+                        type="button"
+                        className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 hover:bg-amber-100"
+                        onClick={async () => await updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "perlu_bersih" })}
+                      >Bersih</button>
+                      <button
+                        type="button"
+                        className="rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-800 hover:bg-red-100"
+                        onClick={async () => await updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "dipakai" })}
+                      >Dipakai</button>
+                    </div>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+
+          <div className="hidden lg:block max-w-full overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-gray-2 text-left dark:bg-meta-4">
@@ -242,7 +389,7 @@ const ReservasiPage = () => {
                 {/* 3. TAMPILAN DINAMIS: Me-looping data dari Cloud Database */}
                 {reservasiList.length === 0 ? (
                   <tr className="border-b border-stroke dark:border-strokedark">
-                    <td colSpan={11} className="py-8 text-center text-sm font-medium text-gray-500">
+                    <td colSpan={13} className="py-8 text-center text-sm font-medium text-gray-500">
                       Memuat data dari Cloud... (Atau belum ada reservasi)
                     </td>
                   </tr>

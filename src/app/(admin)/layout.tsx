@@ -5,7 +5,15 @@ import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import AuthGuard from "@/components/auth/AuthGuard";
+import dynamic from "next/dynamic";
 import React from "react";
+
+const MobileBottomNav = dynamic(
+  () => import("@/components/layout/MobileBottomNav"),
+  {
+    ssr: false,
+  }
+);
 
 export default function AdminLayout({
   children,
@@ -38,8 +46,7 @@ export default function AdminLayout({
         </div>
         {/* Mobile bottom navigation for easy touch access */}
         <div className="lg:hidden">
-          {/* MobileBottomNav will be dynamically imported in client runtime */}
-          <div id="mobile-bottom-nav-placeholder"></div>
+          <MobileBottomNav />
         </div>
       </div>
     </AuthGuard>

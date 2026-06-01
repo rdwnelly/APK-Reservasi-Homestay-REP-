@@ -28,13 +28,12 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isMobileOpen || isHovered ? (
-            <span className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              Rumah Etnik <span className="text-amber-500">Papua</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">ARUM</span>
+              <span className="text-xs text-gray-500">Aplikasi Reservasi Utama Rumsram</span>
+            </div>
           ) : (
-            <span className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              REP
-            </span>
+            <span className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">ARUM</span>
           )}
         </Link>
       </div>

@@ -57,10 +57,10 @@ export default function SignInForm() {
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md text-center">
-              Selamat Datang di Rumah Etnik Papua 🛖
+              Selamat Datang di ARUM
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-              Sistem Manajemen Reservasi & Pelestarian Budaya. Silakan masuk dengan akses Admin khusus.
+              Aplikasi Reservasi Utama Rumsram — silakan masuk menggunakan akun admin.
             </p>
           </div>
           <div>
@@ -71,7 +71,7 @@ export default function SignInForm() {
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
                   <Input 
-                    placeholder="admin@rep.com" 
+                    placeholder="admin@arum.com" 
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

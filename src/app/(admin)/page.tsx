@@ -91,10 +91,10 @@ export default function DashboardUtama() {
     <>
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-black dark:text-white">
-          Selamat Datang di REP Admin
+          Selamat Datang di ARUM Admin
         </h2>
         <p className="text-sm text-gray-500 mt-1">
-          Pantau ringkasan operasional dan keuangan Homestay Rumah Etnik Papua secara real-time.
+          Pantau ringkasan operasional dan keuangan Homestay ARUM secara real-time.
         </p>
       </div>
 

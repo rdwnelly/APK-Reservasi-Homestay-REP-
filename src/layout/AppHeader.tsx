@@ -85,21 +85,27 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link href="/" className="lg:hidden">
-            <Image
-              width={70}
-              height={16}
-              className="dark:hidden h-auto w-auto max-h-6"
-              src="/images/logo/logo.jpg"
-              alt="Logo"
-            />
-            <Image
-              width={70}
-              height={16}
-              className="hidden dark:block h-auto w-auto max-h-6"
-              src="/images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+          <Link href="/" className="flex items-center gap-3 lg:gap-4">
+            <div className="flex items-center gap-2">
+              <Image
+                width={48}
+                height={24}
+                className="dark:hidden h-auto w-auto max-h-6"
+                src="/images/logo/logo.jpg"
+                alt="Logo"
+              />
+              <Image
+                width={48}
+                height={24}
+                className="hidden dark:block h-auto w-auto max-h-6"
+                src="/images/logo/logo-dark.svg"
+                alt="Logo"
+              />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-semibold text-gray-800 dark:text-white">ARUM</span>
+              <span className="text-[11px] text-gray-500 dark:text-gray-400">Aplikasi Reservasi Utama Rumsram</span>
+            </div>
           </Link>
 
           <button
