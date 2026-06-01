@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import React from "react";
-import { HomeIcon, CalendarIcon, ClipboardIcon, ChartBarIcon, UserIcon } from "@/icons";
 
 const MobileBottomNav: React.FC = () => {
   return (
