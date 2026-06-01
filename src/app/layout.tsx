@@ -24,7 +24,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#101828" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="apple-touch-icon" href="/images/logo/logo.jpg" />
+        <link rel="apple-touch-icon" href="/images/logo/logorep.jpg" />
       </head>
       <body className={`${outfit.className} dark:bg-gray-900`}>
         <ThemeProvider>

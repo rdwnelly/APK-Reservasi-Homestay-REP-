@@ -59,7 +59,7 @@ export default function SignInForm() {
           <div className="mb-5 sm:mb-8 text-center">
             <div className="mx-auto mb-6 w-56 h-36 relative -mt-2">
               <Image
-                src="/images/logo/logo.jpg"
+                src="/images/logo/logorep.jpg"
                 alt="ARUM Logo"
                 fill={false}
                 width={224}
