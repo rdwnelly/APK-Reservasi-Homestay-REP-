@@ -2,6 +2,7 @@
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import Image from "next/image";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
@@ -55,7 +56,17 @@ export default function SignInForm() {
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
-          <div className="mb-5 sm:mb-8">
+          <div className="mb-5 sm:mb-8 text-center">
+            <div className="mx-auto mb-4 w-40 h-24 relative">
+              <Image
+                src="/images/logo/logo.jpg"
+                alt="ARUM Logo"
+                fill={false}
+                width={160}
+                height={96}
+                className="object-contain mx-auto"
+              />
+            </div>
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md text-center">
               Selamat Datang di ARUM
             </h1>
