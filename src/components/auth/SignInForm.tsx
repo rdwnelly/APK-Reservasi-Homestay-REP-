@@ -7,6 +7,13 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,16 +26,18 @@ export default function SignInForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    try {
+      // Set persistence based on "Keep me logged in" checkbox
+      await setPersistence(
+        auth,
+        isChecked ? browserLocalPersistence : browserSessionPersistence
+      );
 
-    // Hardcoded credentials
-    const ADMIN_EMAIL = "admin@rep.com";
-    const ADMIN_PASSWORD = "admin";
-
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      localStorage.setItem("isHardcodedAdmin", "true");
-      router.push("/"); // Redirect to dashboard
-    } else {
-      alert("Email atau password salah!");
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/"); // Redirect to dashboard on success
+    } catch (error: any) {
+      const message = error?.message || "Gagal masuk. Periksa kredensial Anda.";
+      alert(message);
       setLoading(false);
     }
   };

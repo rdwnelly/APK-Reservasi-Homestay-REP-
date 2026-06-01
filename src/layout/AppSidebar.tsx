@@ -48,7 +48,7 @@ const AppSidebar: React.FC = () => {
                 className="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
               >
                 <span className="text-xl">📊</span>
-                <span className={(isExpanded || isHovered || isMobileOpen) ? "block" : "hidden lg:hidden"}>Dashboard Utama</span>
+                <span className={isExpanded || isHovered || isMobileOpen ? "block" : "hidden"}>Dashboard Utama</span>
               </Link>
             </li>
 
@@ -59,7 +59,7 @@ const AppSidebar: React.FC = () => {
                 className="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
               >
                 <span className="text-xl">🛏️</span>
-                <span className={(isExpanded || isHovered || isMobileOpen) ? "block" : "hidden lg:hidden"}>Kelola Reservasi</span>
+                <span className={isExpanded || isHovered || isMobileOpen ? "block" : "hidden"}>Kelola Reservasi</span>
               </Link>
             </li>
 
@@ -70,7 +70,7 @@ const AppSidebar: React.FC = () => {
                 className="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
               >
                 <span className="text-xl">💰</span>
-                <span className={(isExpanded || isHovered || isMobileOpen) ? "block" : "hidden lg:hidden"}>Laporan Pemasukan</span>
+                <span className={isExpanded || isHovered || isMobileOpen ? "block" : "hidden"}>Laporan Pemasukan</span>
               </Link>
             </li>
 
@@ -81,7 +81,7 @@ const AppSidebar: React.FC = () => {
                 className="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
               >
                 <span className="text-xl">📅</span>
-                <span className={(isExpanded || isHovered || isMobileOpen) ? "block" : "hidden lg:hidden"}>Kalender Reservasi</span>
+                <span className={isExpanded || isHovered || isMobileOpen ? "block" : "hidden"}>Kalender Reservasi</span>
               </Link>
             </li>
 
@@ -92,7 +92,7 @@ const AppSidebar: React.FC = () => {
                 className="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
               >
                 <span className="text-xl">📜</span>
-                <span className={(isExpanded || isHovered || isMobileOpen) ? "block" : "hidden lg:hidden"}>Riwayat Kunjungan</span>
+                <span className={isExpanded || isHovered || isMobileOpen ? "block" : "hidden"}>Riwayat Kunjungan</span>
               </Link>
             </li>
           </ul>

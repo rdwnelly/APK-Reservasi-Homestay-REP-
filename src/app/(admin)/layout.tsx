@@ -34,7 +34,12 @@ export default function AdminLayout({
           {/* Header */}
           <AppHeader />
           {/* Page Content */}
-          <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+          <div className="p-4 mx-auto max-w-full md:p-6">{children}</div>
+        </div>
+        {/* Mobile bottom navigation for easy touch access */}
+        <div className="lg:hidden">
+          {/* MobileBottomNav will be dynamically imported in client runtime */}
+          <div id="mobile-bottom-nav-placeholder"></div>
         </div>
       </div>
     </AuthGuard>

@@ -11,16 +11,6 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Check for hardcoded admin login
-    const isHardcodedAdmin = localStorage.getItem("isHardcodedAdmin") === "true";
-    
-    if (isHardcodedAdmin) {
-      // Mock user object to bypass the null check
-      setUser({ uid: "admin", email: "admin@rep.com" } as User);
-      setLoading(false);
-      return () => {}; // Return empty cleanup
-    }
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
