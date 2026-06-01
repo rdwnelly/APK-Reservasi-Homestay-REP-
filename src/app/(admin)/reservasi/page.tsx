@@ -446,14 +446,6 @@ const ReservasiPage = () => {
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <label className="mb-2.5 block text-black dark:text-white">Status Kebersihan Kamar (Alternatif)</label>
-                  <select name="status_kebersihan" value={formData.status_kebersihan} onChange={handleInputChange} className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
-                    <option value="siap">🟢 Siap Huni</option>
-                    <option value="dipakai">🔴 Sedang Dipakai</option>
-                    <option value="perlu_bersih">🟡 Perlu Dibersihkan</option>
-                  </select>
-                </div>
                 <button type="submit" disabled={isLoading} className="flex w-full justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90 disabled:bg-gray-400 mt-6">
                   {isLoading ? "Memproses..." : (editingId ? "Simpan Perubahan" : "Simpan Reservasi")}
                 </button>
