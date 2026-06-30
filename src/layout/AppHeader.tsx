@@ -1,5 +1,4 @@
 "use client";
-import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
@@ -43,11 +42,12 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-50 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
-      <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
-        <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
+    <header className="sticky top-0 flex w-full bg-gray-50/95 backdrop-blur-md border-b border-brand-200 z-50 shadow-sm overflow-hidden">
+      <div className="absolute inset-0 bg-papua-pattern pointer-events-none"></div>
+      <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6 relative z-10">
+        <div className="flex items-center justify-between w-full gap-2 px-4 py-3 sm:gap-4 lg:justify-normal lg:px-0 lg:py-4">
           <button
-            className="items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
+            className="items-center justify-center w-10 h-10 text-gray-500 border border-gray-200 rounded-lg z-99999 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
             onClick={handleToggle}
             aria-label="Toggle Sidebar"
           >
@@ -85,7 +85,7 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link href="/" className="flex items-center gap-3 lg:gap-4">
+          <Link href="/" className="flex items-center gap-3 lg:gap-4 transition-opacity hover:opacity-80">
             <div className="flex items-center gap-2">
               <Image
                 width={48}
@@ -103,14 +103,14 @@ const AppHeader: React.FC = () => {
               />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold text-gray-800 dark:text-white">ARUM</span>
-              <span className="text-[11px] text-gray-500 dark:text-gray-400">Aplikasi Reservasi Utama Rumsram</span>
+              <span className="text-xl font-lora font-bold text-brand-500">ARUM</span>
+              <span className="text-[11px] text-gray-500">Aplikasi Reservasi Utama Rumsram</span>
             </div>
           </Link>
 
           <button
             onClick={toggleApplicationMenu}
-            className="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
+            className="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 transition-colors border border-transparent hover:bg-gray-100 hover:border-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:border-gray-700 lg:hidden"
           >
             <svg
               width="24"
@@ -155,7 +155,7 @@ const AppHeader: React.FC = () => {
                   className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-boxdark dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
                 />
 
-                <button className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-boxdark dark:text-gray-400">
+                <button className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-boxdark dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
                   <span> ⌘ </span>
                   <span> K </span>
                 </button>
@@ -165,14 +165,10 @@ const AppHeader: React.FC = () => {
         </div>
         <div
           className={`${
-            isApplicationMenuOpen ? "flex" : "hidden"
-          } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
+            isApplicationMenuOpen ? "flex border-t border-gray-200 dark:border-gray-800 lg:border-t-0 bg-white dark:bg-gray-900 lg:bg-transparent lg:dark:bg-transparent" : "hidden"
+          } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none transition-all`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
-            {/* <!-- Dark Mode Toggler --> */}
-            <ThemeToggleButton />
-            {/* <!-- Dark Mode Toggler --> */}
-
            <NotificationDropdown /> 
             {/* <!-- Notification Menu Area --> */}
           </div>

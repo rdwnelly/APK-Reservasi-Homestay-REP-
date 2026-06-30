@@ -1,4 +1,4 @@
-import { Outfit } from 'next/font/google';
+import { Inter, Lora } from 'next/font/google';
 import './globals.css';
 import "flatpickr/dist/flatpickr.css";
 import { SidebarProvider } from '@/context/SidebarContext';
@@ -7,9 +7,8 @@ import RegisterSW from '@/components/pwa/RegisterSW';
 import InstallPrompt from '@/components/pwa/InstallPrompt';
 import NotificationSetup from '@/components/pwa/NotificationSetup';
 
-const outfit = Outfit({
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const lora = Lora({ subsets: ["latin"], variable: "--font-lora" });
 
 export default function RootLayout({
   children,
@@ -26,7 +25,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/images/logo/logorep.jpg" />
       </head>
-      <body className={`${outfit.className} dark:bg-gray-900`}>
+      <body className={`${inter.variable} ${lora.variable} font-sans`}>
         <ThemeProvider>
           <SidebarProvider>
             {children}

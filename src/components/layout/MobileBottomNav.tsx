@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import React from "react";
+import { usePathname } from "next/navigation";
 import {
   PieChartIcon,
   BoxIconLine,
@@ -9,41 +10,49 @@ import {
   UserIcon,
 } from "@/icons";
 
-const navButtonClass =
-  "flex flex-col items-center justify-center gap-1 rounded-2xl py-2 px-3 transition duration-200 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500";
-
 const MobileBottomNav: React.FC = () => {
+  const pathname = usePathname();
+
+  const getNavButtonClass = (isActive: boolean) => {
+    return `flex flex-col items-center justify-center gap-1 rounded-2xl py-2 px-3 transition-all duration-300 text-xs font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500
+    ${
+      isActive
+        ? "text-brand-600 bg-brand-50 shadow-sm"
+        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+    }`;
+  };
+
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] -translate-x-1/2 rounded-2xl bg-white/95 backdrop-blur-md shadow-lg border border-gray-200 dark:bg-gray-900/95 dark:border-gray-800 lg:hidden">
-      <ul className="flex justify-between items-center py-2 px-2">
+    <nav className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl bg-gray-50/80 bg-papua-pattern backdrop-blur-xl shadow-theme-xl border border-brand-200 lg:hidden">
+      <ul className="flex justify-between items-center py-1.5 px-2">
         <li className="flex-1 text-center">
-          <Link href="/" className={navButtonClass} aria-label="Dashboard">
+          <Link href="/" className={getNavButtonClass(pathname === "/")} aria-label="Dashboard">
             <PieChartIcon className="h-5 w-5" />
-            <span className="text-xs font-medium">Dashboard</span>
+            <span className="mt-0.5">Dashboard</span>
           </Link>
         </li>
         <li className="flex-1 text-center">
-          <Link href="/reservasi" className={navButtonClass} aria-label="Reservasi">
+          <Link href="/reservasi" className={getNavButtonClass(pathname === "/reservasi")} aria-label="Reservasi">
             <BoxIconLine className="h-5 w-5" />
-            <span className="text-xs font-medium">Reservasi</span>
+            <span className="mt-0.5">Reservasi</span>
           </Link>
         </li>
         <li className="flex-1 text-center">
-          <Link href="/laporan" className={navButtonClass} aria-label="Laporan">
+          <Link href="/laporan" className={getNavButtonClass(pathname === "/laporan")} aria-label="Laporan">
             <DollarLineIcon className="h-5 w-5" />
-            <span className="text-xs font-medium">Laporan</span>
+            <span className="mt-0.5">Laporan</span>
           </Link>
         </li>
         <li className="flex-1 text-center">
-          <Link href="/kalender" className={navButtonClass} aria-label="Kalender">
+          <Link href="/kalender" className={getNavButtonClass(pathname === "/kalender")} aria-label="Kalender">
             <CalenderIcon className="h-5 w-5" />
-            <span className="text-xs font-medium">Kalender</span>
+            <span className="mt-0.5">Kalender</span>
           </Link>
         </li>
         <li className="flex-1 text-center">
-          <Link href="/profile" className={navButtonClass} aria-label="Profil">
+          <Link href="/profile" className={getNavButtonClass(pathname === "/profile")} aria-label="Profil">
             <UserIcon className="h-5 w-5" />
-            <span className="text-xs font-medium">Profil</span>
+            <span className="mt-0.5">Profil</span>
           </Link>
         </li>
       </ul>

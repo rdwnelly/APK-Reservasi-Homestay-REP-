@@ -61,19 +61,5 @@ export default function NotificationSetup() {
     }
   };
 
-  return (
-    <div>
-      <div>
-        <p>Notification permission: {perm || 'unknown'}</p>
-        {perm !== 'granted' ? (
-          <button onClick={requestPermission} className="rounded bg-blue-600 text-white px-3 py-1">Enable Notifications</button>
-        ) : (
-          <div>
-            <p>FCM Token: {token ? token.slice(0,24) + '...' : 'No token yet'}</p>
-            <button onClick={retrieveToken} className="rounded bg-gray-600 text-white px-3 py-1">Refresh Token</button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return null;
 }

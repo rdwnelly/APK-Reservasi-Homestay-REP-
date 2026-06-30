@@ -63,6 +63,7 @@ export async function checkAndUpdateReservationStatus(): Promise<void> {
       ) {
         await updateDoc(doc(db, "reservasi", docSnapshot.id), {
           status_reservasi: "Selesai",
+          status_bayar: "Lunas",
           updated_at: new Date().toISOString(),
         });
         

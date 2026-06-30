@@ -1,10 +1,11 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.never-dark *)); /* Dark mode permanently disabled */
 
 @theme {
   --font-*: initial;
-  --font-outfit: Outfit, sans-serif;
+  --font-inter: Inter, sans-serif;
+  --font-lora: Lora, serif;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -38,18 +39,19 @@
   --color-white: #ffffff;
   --color-black: #101828;
 
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  /* Primary Color: Cokelat tua gelap #4E342E */
+  --color-brand-25: #EFEBEA;
+  --color-brand-50: #DFD7D5;
+  --color-brand-100: #CFAFAC;
+  --color-brand-200: #AE8981;
+  --color-brand-300: #8D6356;
+  --color-brand-400: #6D4C42;
+  --color-brand-500: #4E342E;
+  --color-brand-600: #3E2924;
+  --color-brand-700: #2E1F1B;
+  --color-brand-800: #1F1412;
+  --color-brand-900: #0F0A09;
+  --color-brand-950: #080504;
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -64,19 +66,20 @@
   --color-blue-light-900: #0b4a6f;
   --color-blue-light-950: #062c41;
 
-  --color-gray-25: #fcfcfd;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f2f4f7;
-  --color-gray-200: #e4e7ec;
-  --color-gray-300: #d0d5dd;
-  --color-gray-400: #98a2b3;
-  --color-gray-500: #667085;
-  --color-gray-600: #475467;
-  --color-gray-700: #344054;
-  --color-gray-800: #1d2939;
-  --color-gray-900: #101828;
-  --color-gray-950: #0c111d;
-  --color-gray-dark: #1a2231;
+  /* Background Color: Abu-abu sangat muda #FAFAFA */
+  --color-gray-25: #FFFFFF;
+  --color-gray-50: #FAFAFA;
+  --color-gray-100: #F5F5F5;
+  --color-gray-200: #EEEEEE;
+  --color-gray-300: #E0E0E0;
+  --color-gray-400: #BDBDBD;
+  --color-gray-500: #9E9E9E;
+  --color-gray-600: #757575;
+  --color-gray-700: #616161;
+  --color-gray-800: #424242;
+  --color-gray-900: #212121;
+  --color-gray-950: #121212;
+  --color-gray-dark: #212121;
 
   --color-orange-25: #fffaf5;
   --color-orange-50: #fff6ed;
@@ -91,44 +94,47 @@
   --color-orange-900: #7e2410;
   --color-orange-950: #511c10;
 
-  --color-success-25: #f6fef9;
-  --color-success-50: #ecfdf3;
-  --color-success-100: #d1fadf;
-  --color-success-200: #a6f4c5;
-  --color-success-300: #6ce9a6;
-  --color-success-400: #32d583;
-  --color-success-500: #12b76a;
-  --color-success-600: #039855;
-  --color-success-700: #027a48;
-  --color-success-800: #05603a;
-  --color-success-900: #054f31;
-  --color-success-950: #053321;
+  /* Green Status: #2E7D32 */
+  --color-success-25: #E8F5E9;
+  --color-success-50: #C8E6C9;
+  --color-success-100: #A5D6A7;
+  --color-success-200: #81C784;
+  --color-success-300: #66BB6A;
+  --color-success-400: #4CAF50;
+  --color-success-500: #2E7D32;
+  --color-success-600: #1B5E20;
+  --color-success-700: #0D3E10;
+  --color-success-800: #062808;
+  --color-success-900: #031404;
+  --color-success-950: #010A02;
 
-  --color-error-25: #fffbfa;
-  --color-error-50: #fef3f2;
-  --color-error-100: #fee4e2;
-  --color-error-200: #fecdca;
-  --color-error-300: #fda29b;
-  --color-error-400: #f97066;
-  --color-error-500: #f04438;
-  --color-error-600: #d92d20;
-  --color-error-700: #b42318;
-  --color-error-800: #912018;
-  --color-error-900: #7a271a;
-  --color-error-950: #55160c;
+  /* Red Status: #C62828 */
+  --color-error-25: #FFEBEE;
+  --color-error-50: #FFCDD2;
+  --color-error-100: #EF9A9A;
+  --color-error-200: #E57373;
+  --color-error-300: #EF5350;
+  --color-error-400: #F44336;
+  --color-error-500: #C62828;
+  --color-error-600: #B71C1C;
+  --color-error-700: #8E1515;
+  --color-error-800: #660E0E;
+  --color-error-900: #420808;
+  --color-error-950: #240404;
 
-  --color-warning-25: #fffcf5;
-  --color-warning-50: #fffaeb;
-  --color-warning-100: #fef0c7;
-  --color-warning-200: #fedf89;
-  --color-warning-300: #fec84b;
-  --color-warning-400: #fdb022;
-  --color-warning-500: #f79009;
-  --color-warning-600: #dc6803;
-  --color-warning-700: #b54708;
-  --color-warning-800: #93370d;
-  --color-warning-900: #7a2e0e;
-  --color-warning-950: #4e1d09;
+  /* Accent: #FBC02D */
+  --color-warning-25: #FFFDE7;
+  --color-warning-50: #FFF9C4;
+  --color-warning-100: #FFF59D;
+  --color-warning-200: #FFF176;
+  --color-warning-300: #FFEE58;
+  --color-warning-400: #FFEB3B;
+  --color-warning-500: #FBC02D;
+  --color-warning-600: #F9A825;
+  --color-warning-700: #F57F17;
+  --color-warning-800: #E65100;
+  --color-warning-900: #BF360C;
+  --color-warning-950: #872304;
 
   --color-theme-pink-500: #ee46bc;
 
@@ -190,7 +196,7 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-inter z-1 bg-gray-50;
   }
 }
 
@@ -199,23 +205,23 @@
 }
 
 @utility menu-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-warning-500 text-brand-900 font-bold shadow-sm;
 }
 
 @utility menu-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+  @apply text-gray-400 hover:bg-white/10 hover:text-white group-hover:text-white;
 }
 
 @utility menu-item-icon {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
+  @apply text-gray-400 group-hover:text-white;
 }
 
 @utility menu-item-icon-active {
-  @apply text-brand-500 dark:text-brand-400;
+  @apply text-brand-900;
 }
 
 @utility menu-item-icon-inactive {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+  @apply text-gray-400 group-hover:text-white;
 }
 
 @utility menu-item-arrow {
@@ -755,4 +761,11 @@ span.flatpickr-weekday,
     0 1px 2px 0 rgba(16, 24, 40, 0.06);
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
+}
+
+@utility bg-papua-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L40 20L20 40L0 20Z' fill='currentColor' fill-opacity='0.15'/%3E%3Cpath d='M20 10L30 20L20 30L10 20Z' fill='currentColor' fill-opacity='0.25'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+  opacity: 0.15;
 }

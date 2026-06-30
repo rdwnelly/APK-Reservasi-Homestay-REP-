@@ -367,77 +367,77 @@ const ReservasiPage = () => {
           </div>
 
           <div className="hidden lg:block max-w-full overflow-x-auto">
-            <table className="w-full table-auto">
+            <table className="w-full table-auto border-collapse border border-stroke dark:border-strokedark">
               <thead>
                 <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">ID & Nama Tamu</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jml Tamu</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jml Malam</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Sumber Booking</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Tipe Kamar</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Harga Kamar</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-in</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Check-out</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap">Jam Kedatangan</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Reservasi</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Bayar</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Status Kebersihan</th>
-                  <th className="py-4 px-4 font-medium text-black dark:text-white whitespace-nowrap text-center">Aksi</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">ID & Nama Tamu</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Jml Tamu</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Jml Malam</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Sumber Booking</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Tipe Kamar</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Harga Kamar</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Check-in</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Check-out</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap">Jam Kedatangan</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap text-center">Status Reservasi</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap text-center">Status Bayar</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap text-center">Status Kebersihan</th>
+                  <th className="py-4 px-4 border border-stroke dark:border-strokedark font-medium text-black dark:text-white whitespace-nowrap text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {/* 3. TAMPILAN DINAMIS: Me-looping data dari Cloud Database */}
                 {reservasiList.length === 0 ? (
                   <tr className="border-b border-stroke dark:border-strokedark">
-                    <td colSpan={13} className="py-8 text-center text-sm font-medium text-gray-500">
+                    <td colSpan={13} className="py-8 border border-stroke dark:border-strokedark text-center text-sm font-medium text-gray-500">
                       Memuat data dari Cloud... (Atau belum ada reservasi)
                     </td>
                   </tr>
                 ) : (
                   reservasiList.map((item) => (
                     <tr key={item.id} className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 transition-colors">
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-xs text-gray-500">#{item.id?.slice(0, 6).toUpperCase()}</p>
                         <p className="font-semibold text-black dark:text-white">{item.nama_tamu}</p>
                         <p className="text-xs text-gray-500">{item.no_hp}</p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">{item.jumlah_tamu ? `${item.jumlah_tamu} Orang` : "-"}</p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">{getJumlahMalam(item.tgl_checkin, item.tgl_checkout)}</p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">{item.sumber_booking}</p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="font-medium text-black dark:text-white">{item.id_kamar}</p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">
                           {item.total_tagihan ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(Number(item.total_tagihan)) : "-"}
                         </p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">{formatDate(item.tgl_checkin)}</p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-sm text-black dark:text-white">{formatDate(item.tgl_checkout)}</p>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <p className="text-sm font-medium text-primary">{item.jam_kedatangan || "-"}</p>
                       </td>
-                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusReservasiLabel(item.status_reservasi).color}`}>
                           {getStatusReservasiLabel(item.status_reservasi).label}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusColor(item.status_bayar)}`}>
                           {item.status_bayar}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-center whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getKebersihanLabel(item.status_kebersihan).color}`}>
                           {getKebersihanLabel(item.status_kebersihan).label}
                         </span>
@@ -459,7 +459,7 @@ const ReservasiPage = () => {
                           >🔴</button>
                         </div>
                       </td>
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-4 px-4 border border-stroke dark:border-strokedark whitespace-nowrap">
                         <div className="flex items-center justify-center gap-2">
                           <Link
                             href={`/reservasi/${item.id}`}
