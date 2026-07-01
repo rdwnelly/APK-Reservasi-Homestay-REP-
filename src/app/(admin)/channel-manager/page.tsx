@@ -1,4 +1,4 @@
-2"use client";
+"use client";
 
 import React, { useState } from "react";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
