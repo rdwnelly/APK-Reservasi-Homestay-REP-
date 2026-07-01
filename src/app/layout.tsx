@@ -23,6 +23,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#101828" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="ARUM-REP" />
         <link rel="apple-touch-icon" href="/images/logo/app-icon.png" />
       </head>
       <body className={`${inter.variable} ${lora.variable} font-sans`}>
