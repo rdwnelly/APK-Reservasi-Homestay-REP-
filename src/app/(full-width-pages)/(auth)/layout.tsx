@@ -16,8 +16,8 @@ export default function AuthLayout({
       <ThemeProvider>
         {/* Latar Belakang Gambar */}
         <div 
-          className="absolute inset-0 z-[-1] bg-cover bg-center bg-no-repeat blur-[8px] brightness-75 dark:brightness-50 transform scale-110"
-          style={{ backgroundImage: "url('/images/bg-login.jpg')" }}
+          className="absolute inset-0 z-[-1] bg-cover bg-center bg-no-repeat blur-[6px] brightness-75 dark:brightness-50 transform scale-110"
+          style={{ backgroundImage: "url('/images/batik-papua-bird.jpg')" }}
         />
         
         <div className="relative flex w-full min-h-screen items-center justify-center p-6 sm:p-0">
