@@ -8,7 +8,6 @@ import {
   BoxIconLine,
   DollarLineIcon,
   CalenderIcon,
-  UserIcon,
 } from "@/icons";
 
 const MobileBottomNav: React.FC = () => {
@@ -51,12 +50,6 @@ const MobileBottomNav: React.FC = () => {
           <Link href="/kalender" className={getNavButtonClass(pathname === "/kalender")} aria-label="Kalender">
             <CalenderIcon className="h-5 w-5" />
             <span className="mt-0.5">Kalender</span>
-          </Link>
-        </li>
-        <li className="flex-1 text-center">
-          <Link href="/profile" className={getNavButtonClass(pathname === "/profile")} aria-label="Profil">
-            <UserIcon className="h-5 w-5" />
-            <span className="mt-0.5">Profil</span>
           </Link>
         </li>
       </ul>
