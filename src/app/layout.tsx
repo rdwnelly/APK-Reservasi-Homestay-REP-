@@ -19,7 +19,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/images/logo/app-icon.png" />
+        <meta property="og:title" content="ARUM-REP" />
+        <meta property="og:description" content="Aplikasi Reservasi Utama Rumsram" />
+        <meta property="og:image" content="/images/logo/app-icon.png" />
+        <meta property="og:type" content="website" />
         <meta name="theme-color" content="#101828" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
