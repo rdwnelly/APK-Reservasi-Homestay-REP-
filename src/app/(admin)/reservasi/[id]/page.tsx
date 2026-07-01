@@ -21,6 +21,7 @@ interface ReservationData {
   kamar_siap: boolean;
   status_bayar: string;
   total_tagihan: string;
+  catatan?: string;
 }
 
 export default function BookingDetail() {
@@ -142,6 +143,12 @@ export default function BookingDetail() {
                 <span className="text-gray-500">Jadwal Check-out</span>
                 <span className="font-medium text-gray-800 dark:text-gray-200">{formatDate(data.tgl_checkout)}</span>
               </div>
+              {data.catatan && (
+                <div className="mt-2 pt-3 border-t border-dashed border-gray-200 dark:border-gray-700">
+                  <span className="text-gray-500 block mb-1">Catatan Tambahan</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200 block">{data.catatan}</span>
+                </div>
+              )}
             </div>
           </div>
 

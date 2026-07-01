@@ -1,15 +1,14 @@
 "use client";
-import NotificationDropdown from "@/components/header/NotificationDropdown";
-import UserDropdown from "@/components/header/UserDropdown";
+
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState ,useEffect,useRef} from "react";
-import { useUserProfile } from "@/hooks/useUserProfile";
+
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
-  const { profile } = useUserProfile();
+
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -42,8 +41,7 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-gray-50/95 backdrop-blur-md border-b border-brand-200 z-50 shadow-sm overflow-hidden">
-      <div className="absolute inset-0 bg-papua-pattern pointer-events-none"></div>
+    <header className="sticky top-0 flex w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 z-50 shadow-sm overflow-hidden transition-colors">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6 relative z-10">
         <div className="flex items-center justify-between w-full gap-2 px-4 py-3 sm:gap-4 lg:justify-normal lg:px-0 lg:py-4">
           <button
@@ -86,26 +84,13 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link href="/" className="flex items-center gap-3 lg:gap-4 transition-opacity hover:opacity-80">
-            <div className="flex items-center gap-2">
-              <Image
-                width={48}
-                height={24}
-                className="dark:hidden h-auto w-auto max-h-6"
-                src="/images/logo/logorep.jpg"
-                alt="Logo"
-              />
-              <Image
-                width={48}
-                height={24}
-                className="hidden dark:block h-auto w-auto max-h-6"
-                src="/images/logo/logorep.jpg"
-                alt="Logo"
-              />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-xl font-lora font-bold text-brand-500">ARUM</span>
-              <span className="text-[11px] text-gray-500">Aplikasi Reservasi Utama Rumsram</span>
-            </div>
+            <Image
+              src="/images/logo/logo-rumah-etnik.png"
+              alt="Logo Rumah Etnik Papua"
+              width={160}
+              height={50}
+              className="h-10 w-auto object-contain"
+            />
           </Link>
 
           <button
@@ -168,14 +153,7 @@ const AppHeader: React.FC = () => {
             isApplicationMenuOpen ? "flex border-t border-gray-200 dark:border-gray-800 lg:border-t-0 bg-white dark:bg-gray-900 lg:bg-transparent lg:dark:bg-transparent" : "hidden"
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none transition-all`}
         >
-          <div className="flex items-center gap-2 2xsm:gap-3">
-           <NotificationDropdown /> 
-            {/* <!-- Notification Menu Area --> */}
-          </div>
-          {/* <!-- User Area --> */}
-          <div className="flex items-center gap-4">
-            <UserDropdown />
-          </div>
+
         </div>
       </div>
     </header>

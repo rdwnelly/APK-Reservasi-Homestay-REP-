@@ -764,8 +764,9 @@ span.flatpickr-weekday,
 }
 
 @utility bg-papua-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L40 20L20 40L0 20Z' fill='currentColor' fill-opacity='0.15'/%3E%3Cpath d='M20 10L30 20L20 30L10 20Z' fill='currentColor' fill-opacity='0.25'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  mix-blend-mode: overlay;
-  opacity: 0.15;
+  background-image: url("/images/batik-papua-bird.jpg");
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: color-burn;
+  opacity: 0.2;
 }

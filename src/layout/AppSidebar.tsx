@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
@@ -40,12 +41,25 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isMobileOpen || isHovered ? (
-            <div className="flex flex-col">
-              <span className="text-2xl font-lora font-extrabold text-warning-500 tracking-tight">ARUM</span>
-              <span className="text-xs text-brand-100">Aplikasi Reservasi Utama Rumsram</span>
+            <div className="flex items-center py-2">
+              <Image
+                src="/images/logo/logo-rumah-etnik.png"
+                alt="Logo Rumah Etnik Papua"
+                width={180}
+                height={60}
+                className="w-auto h-14 object-contain"
+              />
             </div>
           ) : (
-            <span className="text-2xl font-lora font-extrabold text-warning-500 tracking-tight">ARUM</span>
+            <div className="flex items-center justify-center py-2">
+              <Image
+                src="/images/logo/logo-rumah-etnik.png"
+                alt="Logo"
+                width={40}
+                height={40}
+                className="w-auto h-8 object-contain"
+              />
+            </div>
           )}
         </Link>
       </div>
