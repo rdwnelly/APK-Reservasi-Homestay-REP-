@@ -2,6 +2,7 @@
 import Link from "next/link";
 import React from "react";
 import { usePathname } from "next/navigation";
+import { useSidebar } from "@/context/SidebarContext";
 import {
   PieChartIcon,
   BoxIconLine,
@@ -12,6 +13,9 @@ import {
 
 const MobileBottomNav: React.FC = () => {
   const pathname = usePathname();
+  const { isMobileOpen } = useSidebar();
+
+  if (isMobileOpen) return null;
 
   const getNavButtonClass = (isActive: boolean) => {
     return `flex flex-col items-center justify-center gap-1 rounded-2xl py-2 px-3 transition-all duration-300 text-xs font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500
@@ -23,7 +27,7 @@ const MobileBottomNav: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl bg-gray-50/80 bg-papua-pattern backdrop-blur-xl shadow-theme-xl border border-brand-200 lg:hidden">
+    <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-theme-xl border border-gray-200 dark:border-gray-800 lg:hidden">
       <ul className="flex justify-between items-center py-1.5 px-2">
         <li className="flex-1 text-center">
           <Link href="/" className={getNavButtonClass(pathname === "/")} aria-label="Dashboard">
