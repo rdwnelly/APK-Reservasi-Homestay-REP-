@@ -53,6 +53,24 @@ export const useUserProfile = () => {
         } catch (error: any) {
           console.warn("Error fetching user profile:", error?.message || error);
         }
+      } else if (typeof window !== "undefined") {
+        // Fallback for active staff logged in via PIN
+        const staff = localStorage.getItem("activeStaff");
+        if (staff) {
+          try {
+            const parsed = JSON.parse(staff);
+            setProfile({
+              uid: parsed.id || "staff-id",
+              firstName: parsed.nama || "Staf",
+              lastName: parsed.role ? `(${parsed.role})` : "",
+              email: parsed.no_hp || "Staf Homestay",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            } as UserProfile);
+          } catch (e) {}
+        } else {
+          setProfile(null);
+        }
       } else {
         setProfile(null);
       }

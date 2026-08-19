@@ -11,25 +11,31 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      const activeStaff = typeof window !== "undefined" ? localStorage.getItem("activeStaff") : null;
       setLoading(false);
-      if (!user) {
+      
+      if (!currentUser && !activeStaff) {
         router.push("/signin");
       }
     });
+
     return unsubscribe;
   }, [router]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
+        <div className="text-sm font-bold animate-pulse flex items-center gap-2">
+          <span>🔄 Memverifikasi Sesi Operasional...</span>
+        </div>
       </div>
     );
   }
 
-  if (!user) {
+  const activeStaff = typeof window !== "undefined" ? localStorage.getItem("activeStaff") : null;
+  if (!user && !activeStaff) {
     return null;
   }
 
