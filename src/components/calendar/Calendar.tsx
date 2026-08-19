@@ -129,8 +129,8 @@ const Calendar: React.FC<CalendarProps> = ({ events: propEvents }) => {
   };
 
   return (
-    <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-boxdark">
-      <div className="custom-calendar">
+    <div className="rounded-2xl border border-gray-200 bg-white p-2 sm:p-4 dark:border-gray-800 dark:bg-boxdark shadow-sm">
+      <div className="custom-calendar overflow-x-auto">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -138,7 +138,7 @@ const Calendar: React.FC<CalendarProps> = ({ events: propEvents }) => {
           headerToolbar={{
             left: "prev,next addEventButton",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
+            right: "dayGridMonth,timeGridDay",
           }}
           events={events}
           selectable={true}
@@ -147,7 +147,7 @@ const Calendar: React.FC<CalendarProps> = ({ events: propEvents }) => {
           eventContent={renderEventContent}
           customButtons={{
             addEventButton: {
-              text: "Add Event +",
+              text: "+ Event",
               click: openModal,
             },
           }}
@@ -156,7 +156,7 @@ const Calendar: React.FC<CalendarProps> = ({ events: propEvents }) => {
       <Modal
         isOpen={isOpen}
         onClose={closeModal}
-        className="max-w-[700px] p-6 lg:p-10"
+        className="max-w-[700px] p-4 sm:p-6 lg:p-10"
       >
         <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
           <div>

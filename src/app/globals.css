@@ -517,13 +517,13 @@ span.flatpickr-weekday,
   border-left-width: 0;
 }
 .fc .fc-toolbar.fc-header-toolbar {
-  @apply flex-col gap-4 px-6 pt-6 sm:flex-row;
+  @apply flex-col gap-2.5 sm:gap-4 p-3 sm:p-6 sm:flex-row items-center justify-between;
 }
 .fc-button-group {
-  @apply gap-2;
+  @apply gap-1.5 sm:gap-2;
 }
 .fc-button-group .fc-button {
-  @apply flex h-10 w-10 items-center justify-center !rounded-lg border border-gray-200 bg-transparent hover:border-gray-200 hover:bg-gray-50 focus:shadow-none active:!border-gray-200 active:!bg-transparent active:!shadow-none dark:border-gray-800 dark:hover:border-gray-800 dark:hover:bg-gray-900 dark:active:border-gray-800!;
+  @apply flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center !rounded-lg border border-gray-200 bg-transparent hover:border-gray-200 hover:bg-gray-50 focus:shadow-none active:!border-gray-200 active:!bg-transparent active:!shadow-none dark:border-gray-800 dark:hover:border-gray-800 dark:hover:bg-gray-900 dark:active:border-gray-800!;
 }
 
 .fc-button-group .fc-button.fc-prev-button:before {
@@ -544,16 +544,16 @@ span.flatpickr-weekday,
   @apply hidden;
 }
 .fc-addEventButton-button {
-  @apply !rounded-lg !border-0 !bg-brand-500 !px-4 !py-2.5 !text-sm !font-medium hover:!bg-brand-600 focus:!shadow-none;
+  @apply !rounded-lg !border-0 !bg-brand-500 !px-3 sm:!px-4 !py-2 sm:!py-2.5 !text-xs sm:!text-sm !font-medium hover:!bg-brand-600 focus:!shadow-none;
 }
 .fc-toolbar-title {
-  @apply !text-lg !font-medium text-gray-800 dark:text-white/90;
+  @apply !text-base sm:!text-lg !font-bold text-gray-800 dark:text-white/90;
 }
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child {
   @apply rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900;
 }
 .fc-header-toolbar.fc-toolbar .fc-toolbar-chunk:last-child .fc-button {
-  @apply !h-auto !w-auto rounded-md !border-0 bg-transparent !px-5 !py-2 text-sm font-medium text-gray-500 hover:text-gray-700 focus:shadow-none! dark:text-gray-400;
+  @apply !h-auto !w-auto rounded-md !border-0 bg-transparent !px-3 sm:!px-5 !py-1.5 sm:!py-2 text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-700 focus:shadow-none! dark:text-gray-400;
 }
 .fc-header-toolbar.fc-toolbar
   .fc-toolbar-chunk:last-child

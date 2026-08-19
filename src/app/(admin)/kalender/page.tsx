@@ -84,19 +84,40 @@ export default function KalenderReservasi() {
   }, []);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Kalender Reservasi Interaktif</h1>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out space-y-4">
+      {/* Header Halaman */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            📅 Kalender Reservasi Interaktif
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            Jadwal penginapan tamu dan hari libur nasional secara visual.
+          </p>
+        </div>
+
+        {/* Legend Keterangan Warna */}
+        <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-gray-800 p-2.5 px-3.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm text-xs font-semibold">
+          <div className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-blue-600 inline-block shadow-sm"></span>
+            <span className="text-gray-700 dark:text-gray-300">Reservasi Tamu</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-red-400 inline-block shadow-sm"></span>
+            <span className="text-gray-700 dark:text-gray-300">Libur Nasional</span>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
-        <div>Memuat kalender...</div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center dark:border-gray-800 dark:bg-boxdark">
+          <p className="text-sm font-bold text-blue-600 animate-pulse">📅 Memuat kalender reservasi...</p>
+        </div>
       ) : error ? (
-        <div className="text-red-500">{error}</div>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-xs font-bold text-red-600">{error}</div>
       ) : (
         <Calendar events={events} />
       )}
-      <div className="mt-4 text-sm text-gray-600">
-        <div><span className="inline-block w-4 h-4 bg-blue-600 mr-2 align-middle"></span>Reservasi</div>
-        <div><span className="inline-block w-4 h-4 bg-red-400 mr-2 align-middle"></span>Hari Libur Nasional</div>
-      </div>
     </div>
   );
 }

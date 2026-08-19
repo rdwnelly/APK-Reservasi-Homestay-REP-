@@ -42,7 +42,7 @@ export default function AdminLayout({
           {/* Header */}
           <AppHeader />
           {/* Page Content */}
-          <div className="p-4 mx-auto max-w-full md:p-6">{children}</div>
+          <div className="p-3.5 sm:p-4 md:p-6 pb-28 lg:pb-8 mx-auto max-w-full">{children}</div>
         </div>
         {/* Mobile bottom navigation for easy touch access */}
         <div className="lg:hidden">

@@ -36,7 +36,7 @@ const ReservasiPage = () => {
   const [reminderMessages, setReminderMessages] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<ReservationData>({
-    nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
+    nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room with AC",
     tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
     status_kebersihan: "siap", status_reservasi: "Aktif", catatan: ""
   });
@@ -57,7 +57,7 @@ const ReservasiPage = () => {
   const handleAddNewClick = () => {
     setEditingId(null);
     setFormData({
-      nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
+      nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room with AC",
       tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
       status_kebersihan: "siap", status_reservasi: "Aktif", catatan: ""
     });
@@ -210,7 +210,7 @@ const ReservasiPage = () => {
       
       setIsModalOpen(false);
       setFormData({
-        nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room AC",
+        nama_tamu: "", jumlah_tamu: "", no_hp: "", sumber_booking: "Langsung", id_kamar: "Double Room with AC",
         tgl_checkin: "", tgl_checkout: "", jam_kedatangan: "", kamar_siap: false, status_bayar: "Belum Bayar", total_tagihan: "",
         status_kebersihan: "siap", status_reservasi: "Aktif", catatan: ""
       });
@@ -253,18 +253,18 @@ const ReservasiPage = () => {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
       
       {/* Header Halaman */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             Kelola Reservasi
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Daftar tamu, jadwal Rumsram, dan Homestay ARUM.
           </p>
         </div>
-        <button onClick={handleAddNewClick} className="flex items-center gap-2 rounded-xl bg-primary py-2.5 px-6 font-medium text-white shadow-sm shadow-primary/30 hover:bg-primary/90 transition-all hover:-translate-y-0.5">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-          Tambah Reservasi
+        <button onClick={handleAddNewClick} className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 px-5 text-xs sm:text-sm font-bold text-white shadow-sm shadow-primary/30 hover:bg-primary/90 transition-all active:scale-95">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+          + Tambah Reservasi Baru
         </button>
       </div>
 
@@ -289,74 +289,74 @@ const ReservasiPage = () => {
 
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
           
-          {/* TAMPILAN MOBILE (KARTU) */}
-          <div className="space-y-4 lg:hidden p-5">
+          {/* TAMPILAN MOBILE (KARTU KHUSUS HP) */}
+          <div className="space-y-3.5 lg:hidden p-3.5 sm:p-5">
             {reservasiList.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400">
+              <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400">
                 Memuat data dari Cloud... (Atau belum ada reservasi)
               </div>
             ) : (
               reservasiList.map((item) => (
-                <article key={item.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-900">
-                  <div className="flex items-start justify-between gap-3">
+                <article key={item.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Tamu Homestay</p>
-                      <h3 className="mt-1.5 text-base font-bold text-gray-900 dark:text-white">{item.nama_tamu}</h3>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-medium">#{item.id?.slice(0, 6).toUpperCase()} • {item.no_hp}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-primary">Tamu Homestay</p>
+                      <h3 className="mt-0.5 text-base font-bold text-gray-900 dark:text-white">{item.nama_tamu}</h3>
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 font-medium">#{item.id?.slice(0, 6).toUpperCase()} • {item.no_hp || "-"}</p>
                     </div>
-                    <span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase border ${getStatusColor(item.status_bayar)}`}>{item.status_bayar}</span>
+                    <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase border ${getStatusColor(item.status_bayar)}`}>{item.status_bayar}</span>
                   </div>
 
-                  <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
-                    <div className="rounded-xl bg-gray-50/80 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400">Kamar</p>
-                      <p className="mt-1 font-semibold text-gray-900 dark:text-white">{item.id_kamar}</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-xl bg-gray-50/80 p-2.5 dark:bg-gray-800/50">
+                      <p className="text-[9px] uppercase font-bold text-gray-400">Kamar</p>
+                      <p className="mt-0.5 font-bold text-gray-900 dark:text-white truncate">{item.id_kamar}</p>
                     </div>
-                    <div className="rounded-xl bg-gray-50/80 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400">Booking</p>
-                      <p className="mt-1 font-semibold text-gray-900 dark:text-white">{item.sumber_booking}</p>
+                    <div className="rounded-xl bg-gray-50/80 p-2.5 dark:bg-gray-800/50">
+                      <p className="text-[9px] uppercase font-bold text-gray-400">Sumber (OTA)</p>
+                      <p className="mt-0.5 font-bold text-gray-900 dark:text-white truncate">{item.sumber_booking}</p>
                     </div>
-                    <div className="rounded-xl bg-gray-50/80 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400">Jadwal</p>
-                      <p className="mt-1 font-semibold text-gray-900 dark:text-white">{formatDate(item.tgl_checkin)} – {formatDate(item.tgl_checkout)}</p>
+                    <div className="rounded-xl bg-gray-50/80 p-2.5 dark:bg-gray-800/50">
+                      <p className="text-[9px] uppercase font-bold text-gray-400">Check-in / Out</p>
+                      <p className="mt-0.5 font-semibold text-gray-900 dark:text-white text-[11px] truncate">{formatDate(item.tgl_checkin)} – {formatDate(item.tgl_checkout)}</p>
                     </div>
-                    <div className="rounded-xl bg-gray-50/80 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400">Durasi</p>
-                      <p className="mt-1 font-semibold text-gray-900 dark:text-white">{getJumlahMalam(item.tgl_checkin, item.tgl_checkout)}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-col gap-2">
-                    <div className="flex items-center justify-between rounded-xl bg-gray-50/80 p-3 dark:bg-gray-800/50">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Status Reservasi</span>
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide border ${getStatusReservasiLabel(item.status_reservasi).color}`}>{getStatusReservasiLabel(item.status_reservasi).label}</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-xl bg-gray-50/80 p-3 dark:bg-gray-800/50">
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Kebersihan</span>
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide border ${getKebersihanLabel(item.status_kebersihan).color}`}>{getKebersihanLabel(item.status_kebersihan).label}</span>
+                    <div className="rounded-xl bg-gray-50/80 p-2.5 dark:bg-gray-800/50">
+                      <p className="text-[9px] uppercase font-bold text-gray-400">Durasi</p>
+                      <p className="mt-0.5 font-bold text-blue-600 dark:text-blue-400">{getJumlahMalam(item.tgl_checkin, item.tgl_checkout)}</p>
                     </div>
                   </div>
 
-                  <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
-                    <div className="flex gap-2">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center justify-between rounded-xl bg-gray-50/80 p-2.5 dark:bg-gray-800/50">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Reservasi</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase border ${getStatusReservasiLabel(item.status_reservasi).color}`}>{getStatusReservasiLabel(item.status_reservasi).label}</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-xl bg-gray-50/80 p-2.5 dark:bg-gray-800/50">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Kebersihan</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase border ${getKebersihanLabel(item.status_kebersihan).color}`}>{getKebersihanLabel(item.status_kebersihan).label}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-800 gap-2">
+                    <div className="flex gap-1.5">
                       <Link
                         href={`/reservasi/${item.id}`}
-                        className="rounded-lg bg-blue-50 px-4 py-2 text-xs font-bold text-blue-600 transition hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                        className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 transition hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400"
                       >
                         Detail
                       </Link>
                       <button
                         type="button"
-                        className="rounded-lg bg-amber-50 px-4 py-2 text-xs font-bold text-amber-600 transition hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
+                        className="rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-600 transition hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400"
                         onClick={() => handleEditClick(item)}
                       >
                         Ubah
                       </button>
                     </div>
-                    <div className="flex gap-1">
-                      <button type="button" className="rounded-lg bg-gray-50 px-2.5 py-1.5 text-xs hover:bg-green-100 transition" onClick={() => updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "siap" })}>🟢</button>
-                      <button type="button" className="rounded-lg bg-gray-50 px-2.5 py-1.5 text-xs hover:bg-yellow-100 transition" onClick={() => updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "perlu_bersih" })}>🟡</button>
-                      <button type="button" className="rounded-lg bg-gray-50 px-2.5 py-1.5 text-xs hover:bg-red-100 transition" onClick={() => updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "dipakai" })}>🔴</button>
+                    <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/60 p-1 rounded-lg">
+                      <button type="button" title="Siap Huni" className="rounded-md px-1.5 py-0.5 text-xs hover:bg-green-100 transition" onClick={() => updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "siap" })}>🟢</button>
+                      <button type="button" title="Perlu Bersih" className="rounded-md px-1.5 py-0.5 text-xs hover:bg-yellow-100 transition" onClick={() => updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "perlu_bersih" })}>🟡</button>
+                      <button type="button" title="Sedang Dipakai" className="rounded-md px-1.5 py-0.5 text-xs hover:bg-red-100 transition" onClick={() => updateDoc(doc(db, "reservasi", item.id!), { status_kebersihan: "dipakai" })}>🔴</button>
                     </div>
                   </div>
                 </article>
@@ -452,18 +452,18 @@ const ReservasiPage = () => {
           </div>
         </div>
 
-        {/* MODAL FORMULIR */}
+        {/* MODAL FORMULIR (MOBILE OPTIMIZED) */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all">
-            <div className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
+          <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 transition-all">
+            <div className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh] animate-in fade-in zoom-in duration-200">
               
               {/* Header Modal */}
-              <div className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20 py-4 px-6 flex justify-between items-center sticky top-0 z-10">
+              <div className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20 py-3.5 px-4 sm:px-6 flex justify-between items-center sticky top-0 z-10">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">
                     {editingId ? "Ubah Data Reservasi" : "Formulir Reservasi Baru"}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-0.5">Lengkapi form di bawah ini untuk menyimpan data pemesanan.</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Lengkapi form di bawah ini untuk menyimpan data pemesanan.</p>
                 </div>
                 <button 
                   type="button"
@@ -475,7 +475,7 @@ const ReservasiPage = () => {
               </div>
 
               {/* Body Form */}
-              <div className="overflow-y-auto p-6 flex-1 custom-scrollbar">
+              <div className="overflow-y-auto p-4 sm:p-6 flex-1 custom-scrollbar">
                 <form id="reservation-form" onSubmit={handleSubmit} className="space-y-8">
                   
                   {/* Section: Data Tamu */}
@@ -530,9 +530,9 @@ const ReservasiPage = () => {
                         <div>
                           <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Pilih Kamar Homestay <span className="text-red-500">*</span></label>
                           <select name="id_kamar" value={formData.id_kamar} onChange={handleInputChange} className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                            <option value="Double Room with AC">~ Double Room with AC ~ 1.100.000</option>
-                            <option value="Double Room with Fan">~ Double Room with Fan ~ 800.000</option>
-                            <option value="Single Room with Fan">~ Single Room with Fan ~ 600.000</option>
+                            <option value="Double Room with AC">Double Room with AC</option>
+                            <option value="Double Room with Fan">Double Room with Fan</option>
+                            <option value="Single Room with Fan">Single Room with Fan</option>
                           </select>
                         </div>
                         <div>

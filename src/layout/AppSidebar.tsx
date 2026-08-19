@@ -191,6 +191,28 @@ const AppSidebar: React.FC = () => {
                 <span className={isExpanded || isHovered || isMobileOpen ? "block" : "hidden"}>Pengaturan</span>
               </Link>
             </li>
+
+            {/* Menu 8: Keluar Aplikasi */}
+            <li className="mt-4 border-t border-white/20 pt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
+                    localStorage.removeItem("activeStaff");
+                    localStorage.removeItem("isHardcodedAdmin");
+                    window.location.href = "/signin";
+                  }
+                }}
+                className="group menu-item text-rose-200 hover:bg-rose-600/30 hover:text-white w-full text-left"
+              >
+                <span className="menu-item-icon-inactive text-rose-300">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </span>
+                <span className={isExpanded || isHovered || isMobileOpen ? "block font-bold text-rose-200" : "hidden"}>Keluar Aplikasi</span>
+              </button>
+            </li>
           </ul>
         </nav>
 

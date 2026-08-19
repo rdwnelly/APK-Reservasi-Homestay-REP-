@@ -33,21 +33,21 @@ export default function InstallPrompt() {
   if (!visible) return null;
 
   return (
-    <div style={{ position: "fixed", right: 16, bottom: 16, zIndex: 99999 }}>
+    <div className="fixed right-3 bottom-24 lg:bottom-6 z-50 flex items-center gap-1 bg-brand-600 text-white rounded-xl shadow-xl p-1.5 pl-3 border border-brand-400/30 backdrop-blur-md">
       <button
         onClick={handleInstall}
-        style={{
-          background: "#465fff",
-          color: "#fff",
-          border: "none",
-          padding: "10px 14px",
-          borderRadius: 10,
-          boxShadow: "0 4px 14px rgba(70,95,255,0.24)",
-          fontWeight: 600,
-        }}
+        className="flex items-center gap-1.5 text-xs font-bold text-white hover:opacity-90 transition"
       >
-        Install App
+        <span>📲 Install App</span>
+      </button>
+      <button
+        onClick={() => setVisible(false)}
+        className="p-1 hover:bg-brand-700/50 rounded-lg text-white/80 hover:text-white transition text-xs font-bold ml-1"
+        aria-label="Tutup prompt install"
+      >
+        ✕
       </button>
     </div>
   );
 }
+

@@ -122,119 +122,161 @@ export default function RecentOrdersGuest() {
           </p>
         </div>
       ) : (
-        <div className="max-w-full overflow-x-auto">
-          <Table>
-            {/* Table Header */}
-            <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
-              <TableRow>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Nama Tamu
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  No. HP
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Kamar
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Check-in
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Check-out
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Durasi
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Status
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Bayar
-                </TableCell>
-              </TableRow>
-            </TableHeader>
+        <>
+          {/* MOBILE CARDS VIEW (Khusus HP Karyawan) */}
+          <div className="space-y-3 block sm:hidden">
+            {guestList.map((guest) => (
+              <div
+                key={guest.id}
+                className="p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 space-y-2.5 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                      {guest.nama_tamu}
+                    </h4>
+                    <p className="text-xs text-gray-500 font-medium mt-0.5">
+                      📱 {guest.no_hp || "-"} • {guest.jumlah_tamu ? `${guest.jumlah_tamu} orang` : "1 orang"}
+                    </p>
+                  </div>
+                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold border ${getStatusColor(guest.status_bayar)}`}>
+                    {guest.status_bayar}
+                  </span>
+                </div>
 
-            {/* Table Body */}
-            <TableBody>
-              {guestList.map((guest) => (
-                <TableRow
-                  key={guest.id}
-                  className="border-gray-100 dark:border-gray-800 border-b hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                >
-                  <TableCell className="py-3 text-start">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {guest.nama_tamu}
-                      </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {guest.jumlah_tamu ? `${guest.jumlah_tamu} orang` : "-"}
-                      </span>
-                    </div>
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
+                  <div>
+                    <span className="text-[10px] text-gray-400 font-semibold uppercase block">Kamar</span>
+                    <span className="font-bold text-gray-800 dark:text-gray-200">{guest.id_kamar}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 font-semibold uppercase block">Check-in</span>
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">{formatDate(guest.tgl_checkin)}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-gray-400 font-semibold uppercase block">Durasi</span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400">{getJumlahMalam(guest.tgl_checkin, guest.tgl_checkout)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP TABLE VIEW */}
+          <div className="max-w-full overflow-x-auto hidden sm:block">
+            <Table>
+              {/* Table Header */}
+              <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
+                <TableRow>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  >
+                    Nama Tamu
                   </TableCell>
-                  <TableCell className="py-3 text-start">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {guest.no_hp}
-                    </span>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  >
+                    No. HP
                   </TableCell>
-                  <TableCell className="py-3 text-start">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      {guest.id_kamar}
-                    </span>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  >
+                    Kamar
                   </TableCell>
-                  <TableCell className="py-3 text-start">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {formatDate(guest.tgl_checkin)}
-                    </span>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  >
+                    Check-in
                   </TableCell>
-                  <TableCell className="py-3 text-start">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {formatDate(guest.tgl_checkout)}
-                    </span>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  >
+                    Check-out
                   </TableCell>
-                  <TableCell className="py-3 text-start">
-                    <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
-                      {getJumlahMalam(guest.tgl_checkin, guest.tgl_checkout)}
-                    </span>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  >
+                    Durasi
                   </TableCell>
-                  <TableCell className="py-3 text-center">
-                    <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusReservasiLabel(guest.status_reservasi).color}`}>
-                      {getStatusReservasiLabel(guest.status_reservasi).label}
-                    </span>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
+                  >
+                    Status
                   </TableCell>
-                  <TableCell className="py-3 text-center">
-                    <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusColor(guest.status_bayar)}`}>
-                      {guest.status_bayar}
-                    </span>
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
+                  >
+                    Bayar
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+
+              {/* Table Body */}
+              <TableBody>
+                {guestList.map((guest) => (
+                  <TableRow
+                    key={guest.id}
+                    className="border-gray-100 dark:border-gray-800 border-b hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  >
+                    <TableCell className="py-3 text-start">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {guest.nama_tamu}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {guest.jumlah_tamu ? `${guest.jumlah_tamu} orang` : "-"}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3 text-start">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {guest.no_hp}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3 text-start">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {guest.id_kamar}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3 text-start">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {formatDate(guest.tgl_checkin)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3 text-start">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {formatDate(guest.tgl_checkout)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3 text-start">
+                      <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
+                        {getJumlahMalam(guest.tgl_checkin, guest.tgl_checkout)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3 text-center">
+                      <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusReservasiLabel(guest.status_reservasi).color}`}>
+                        {getStatusReservasiLabel(guest.status_reservasi).label}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3 text-center">
+                      <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-medium border ${getStatusColor(guest.status_bayar)}`}>
+                        {guest.status_bayar}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
   );

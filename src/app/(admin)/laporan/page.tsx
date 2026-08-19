@@ -5,7 +5,8 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { db } from "@/lib/firebase";
-import { formatDate } from "@/utils/reservationUtils";
+import { formatDate, getTutupBukuRange } from "@/utils/reservationUtils";
+import { exportRiwayatTutupBukuPDF } from "@/utils/pdfExportUtils";
 import { collection, onSnapshot, query } from "firebase/firestore";
 
 interface ReservationData {
@@ -28,7 +29,6 @@ const toCurrency = (value: number) => {
   }).format(value);
 };
 
-
 const getMonthYear = (dateStr: string) => {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return "Unknown";
@@ -44,7 +44,39 @@ const LaporanPage = () => {
   const [reservasiList, setReservasiList] = useState<ReservationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  
+  // State Filter Periode Tutup Buku (Tanggal 18 - Tanggal 17)
+  const [filterMode, setFilterMode] = useState<"tutup_buku" | "bulanan" | "kustom">("tutup_buku");
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    new Date().toISOString().slice(0, 7)
+  );
+
+  // Auto calculate range Tutup Buku (18 Bulan Lalu - 17 Bulan Terpilih)
+  const defaultTutupBuku = useMemo(() => {
+    const [yStr, mStr] = selectedMonth.split("-");
+    const now = new Date();
+    const y = Number(yStr) || now.getFullYear();
+    const m = Number(mStr) || (now.getMonth() + 1);
+    return getTutupBukuRange(y, m);
+  }, [selectedMonth]);
+
+  const [startDate, setStartDate] = useState<string>(defaultTutupBuku.startDate);
+  const [endDate, setEndDate] = useState<string>(defaultTutupBuku.endDate);
+
+  // Sync dates on month or filterMode change
+  useEffect(() => {
+    if (filterMode === "tutup_buku") {
+      setStartDate(defaultTutupBuku.startDate);
+      setEndDate(defaultTutupBuku.endDate);
+    } else if (filterMode === "bulanan") {
+      const [y, m] = selectedMonth.split("-");
+      if (y && m) {
+        const lastDay = new Date(Number(y), Number(m), 0).getDate();
+        setStartDate(`${y}-${m}-01`);
+        setEndDate(`${y}-${m}-${String(lastDay).padStart(2, "0")}`);
+      }
+    }
+  }, [selectedMonth, filterMode, defaultTutupBuku]);
 
   useEffect(() => {
     const q = query(collection(db, "reservasi"));
@@ -68,7 +100,7 @@ const LaporanPage = () => {
     return () => unsubscribe();
   }, []);
 
-  // Group data by month-year
+  // Group data by month-year for charts
   const monthlyData = useMemo(() => {
     const map: Record<string, ReservationData[]> = {};
     reservasiList.forEach((item) => {
@@ -84,11 +116,14 @@ const LaporanPage = () => {
     return Object.keys(monthlyData).sort((a, b) => b.localeCompare(a));
   }, [monthlyData]);
 
-  // Data for selected month
+  // Data for selected date range (Tutup Buku 18-17 / Custom)
   const filteredList = useMemo(() => {
-    if (!selectedMonth) return reservasiList;
-    return monthlyData[selectedMonth] || [];
-  }, [reservasiList, monthlyData, selectedMonth]);
+    return reservasiList.filter((item) => {
+      const dateToCheck = item.tgl_checkout || item.tgl_checkin;
+      if (!dateToCheck) return false;
+      return dateToCheck >= startDate && dateToCheck <= endDate;
+    });
+  }, [reservasiList, startDate, endDate]);
 
   // Rekap pemasukan bulanan (khusus status lunas)
   const pemasukanBulanan = useMemo(() => {
@@ -257,29 +292,37 @@ const LaporanPage = () => {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
       {/* Header Halaman */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            Laporan Pemasukan
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            Laporan Pemasukan & Tutup Buku
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Ringkasan keuangan dan analisis performa homestay.
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            Rekapitulasi keuangan, pemasukan, DP, dan piutang periode Tutup Buku (Tanggal 18 s/d 17).
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <select
-            className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-            value={selectedMonth}
-            onChange={e => setSelectedMonth(e.target.value)}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => {
+              const financialTotals = {
+                pemasukanLunas: totals.lunas,
+                totalDP: totals.dp,
+                piutangBelumBayar: totals.belumBayar,
+                totalCash: totals.lunas + totals.dp,
+                totalGuests: filteredList.length,
+              };
+              exportRiwayatTutupBukuPDF(filteredList, startDate, endDate, financialTotals);
+            }}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-rose-500/30 hover:bg-rose-700 transition-all active:scale-95"
           >
-            <option value="">🗓️ Semua Bulan</option>
-            {availableMonths.map((m) => (
-              <option key={m} value={m}>{monthYearToLabel(m)}</option>
-            ))}
-          </select>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Download PDF
+          </button>
           <button
             onClick={exportCsv}
-            className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-500/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-blue-500/30 hover:bg-blue-700 transition-all active:scale-95"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
             Export CSV
@@ -287,53 +330,167 @@ const LaporanPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 relative">
-        {/* Summary Cards */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="group rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-emerald-800/30 dark:from-emerald-900/20 dark:to-teal-900/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Total Lunas</p>
-                <p className="mt-2 text-2xl font-bold text-emerald-900 dark:text-emerald-200">{toCurrency(totals.lunas)}</p>
+      <div className="flex flex-col gap-4 sm:gap-6 relative">
+        {/* PANEL FILTER PERIODE TUTUP BUKU (TGL 18 S/D 17) */}
+        <div className="rounded-2xl border border-blue-100 bg-white p-4 sm:p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-3.5">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>📘 Filter Periode Tutup Buku</span>
+                {filterMode === "tutup_buku" && (
+                  <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] sm:text-xs font-extrabold text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                    Otomatis 18 - 17
+                  </span>
+                )}
+              </h3>
+              <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+                Penyaringan otomatis periode laporan keuangan dari Tanggal Mulai (18) sampai Tanggal Akhir (17).
+              </p>
+            </div>
+            
+            {/* Mode Switcher */}
+            <div className="grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setFilterMode("tutup_buku")}
+                className={`rounded-lg py-1.5 px-2 text-[11px] sm:text-xs font-bold transition text-center truncate ${
+                  filterMode === "tutup_buku"
+                    ? "bg-white text-blue-700 shadow dark:bg-gray-700 dark:text-white"
+                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400"
+                }`}
+              >
+                📘 Tutup Buku
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterMode("bulanan")}
+                className={`rounded-lg py-1.5 px-2 text-[11px] sm:text-xs font-bold transition text-center truncate ${
+                  filterMode === "bulanan"
+                    ? "bg-white text-blue-700 shadow dark:bg-gray-700 dark:text-white"
+                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400"
+                }`}
+              >
+                📆 Bulanan
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterMode("kustom")}
+                className={`rounded-lg py-1.5 px-2 text-[11px] sm:text-xs font-bold transition text-center truncate ${
+                  filterMode === "kustom"
+                    ? "bg-white text-blue-700 shadow dark:bg-gray-700 dark:text-white"
+                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400"
+                }`}
+              >
+                ⚙️ Custom
+              </button>
+            </div>
+          </div>
+
+          {/* Form Inputs Filter */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 items-end">
+            <div>
+              <label className="mb-1 block text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-300">
+                Pilih Bulan Periode Tutup Buku
+              </label>
+              <input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="w-full rounded-xl border border-gray-300 bg-gray-50/50 py-2 px-3 text-xs outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-300">
+                Tanggal Mulai (Tgl 18)
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setFilterMode("kustom");
+                }}
+                className="w-full rounded-xl border border-gray-300 bg-gray-50/50 py-2 px-3 text-xs outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-300">
+                Tanggal Akhir (Tgl 17)
+              </label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setFilterMode("kustom");
+                }}
+                className="w-full rounded-xl border border-gray-300 bg-gray-50/50 py-2 px-3 text-xs outline-none transition focus:border-primary focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white font-medium"
+              />
+            </div>
+          </div>
+
+          {/* Banner Status Periode Aktif */}
+          <div className="rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50/50 p-3 dark:from-blue-950/40 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/40 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-blue-950 dark:text-blue-200 gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs">
+              <span className="font-bold text-blue-700 dark:text-blue-400">📅 Rentang Tutup Buku:</span>
+              <span className="font-semibold bg-white dark:bg-gray-800 px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800 shadow-sm">
+                {formatDate(startDate)} <span className="text-blue-500 font-bold">s/d</span> {formatDate(endDate)}
+              </span>
+            </div>
+            <span className="font-bold text-[11px] bg-blue-600 text-white px-2.5 py-0.5 rounded-full shadow-sm shadow-blue-500/20 self-start sm:self-auto">
+              {filteredList.length} Transaksi Ditemukan
+            </span>
+          </div>
+        </div>
+
+        {/* Summary Cards (2x2 Grid on Mobile) */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          <div className="group rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/50 p-3.5 sm:p-6 shadow-sm transition-all duration-300 dark:border-emerald-800/30 dark:from-emerald-900/20 dark:to-teal-900/10">
+            <div className="flex items-start justify-between gap-1">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 truncate">Total Lunas</p>
+                <p className="mt-1 text-base sm:text-2xl font-extrabold text-emerald-900 dark:text-emerald-200 truncate">{toCurrency(totals.lunas)}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-800/50 dark:text-emerald-300 transition-transform group-hover:scale-110">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-800/50 dark:text-emerald-300 flex-shrink-0">
+                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
             </div>
           </div>
           
-          <div className="group rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50/50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-amber-800/30 dark:from-amber-900/20 dark:to-orange-900/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Total DP</p>
-                <p className="mt-2 text-2xl font-bold text-amber-900 dark:text-amber-200">{toCurrency(totals.dp)}</p>
+          <div className="group rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50/50 p-3.5 sm:p-6 shadow-sm transition-all duration-300 dark:border-amber-800/30 dark:from-amber-900/20 dark:to-orange-900/10">
+            <div className="flex items-start justify-between gap-1">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 truncate">Total DP</p>
+                <p className="mt-1 text-base sm:text-2xl font-extrabold text-amber-900 dark:text-amber-200 truncate">{toCurrency(totals.dp)}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-800/50 dark:text-amber-300 transition-transform group-hover:scale-110">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="group rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 to-pink-50/50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-rose-800/30 dark:from-rose-900/20 dark:to-pink-900/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-rose-600 dark:text-rose-400">Belum Bayar</p>
-                <p className="mt-2 text-2xl font-bold text-rose-900 dark:text-rose-200">{toCurrency(totals.belumBayar)}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-800/50 dark:text-rose-300 transition-transform group-hover:scale-110">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-800/50 dark:text-amber-300 flex-shrink-0">
+                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </div>
             </div>
           </div>
 
-          <div className="group rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-50/50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-blue-800/30 dark:from-blue-900/20 dark:to-cyan-900/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-blue-600 dark:text-blue-400">Total Semua</p>
-                <p className="mt-2 text-2xl font-bold text-blue-900 dark:text-blue-200">{toCurrency(totals.totalKeseluruhan)}</p>
+          <div className="group rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 to-pink-50/50 p-3.5 sm:p-6 shadow-sm transition-all duration-300 dark:border-rose-800/30 dark:from-rose-900/20 dark:to-pink-900/10">
+            <div className="flex items-start justify-between gap-1">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 truncate">Belum Bayar</p>
+                <p className="mt-1 text-base sm:text-2xl font-extrabold text-rose-900 dark:text-rose-200 truncate">{toCurrency(totals.belumBayar)}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-800/50 dark:text-blue-300 transition-transform group-hover:scale-110">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+              <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-800/50 dark:text-rose-300 flex-shrink-0">
+                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="group rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-50/50 p-3.5 sm:p-6 shadow-sm transition-all duration-300 dark:border-blue-800/30 dark:from-blue-900/20 dark:to-cyan-900/10">
+            <div className="flex items-start justify-between gap-1">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 truncate">Total Omset</p>
+                <p className="mt-1 text-base sm:text-2xl font-extrabold text-blue-900 dark:text-blue-200 truncate">{toCurrency(totals.totalKeseluruhan)}</p>
+              </div>
+              <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-800/50 dark:text-blue-300 flex-shrink-0">
+                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
               </div>
             </div>
           </div>

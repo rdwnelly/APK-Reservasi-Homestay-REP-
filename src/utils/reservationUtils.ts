@@ -141,3 +141,39 @@ export function formatDate(dateString: string): string {
     return dateString;
   }
 }
+
+/**
+ * Menghitung rentang tanggal untuk Periode Tutup Buku (Tgl 18 Bulan Sebelumnya s/d Tgl 17 Bulan Ini)
+ * Contoh: year=2026, month=8 (Agustus) => Start: 2026-07-18, End: 2026-08-17
+ */
+export function getTutupBukuRange(year: number, month: number) {
+  // Bulan lalu dari bulan & tahun terpilih
+  const prevMonthDate = new Date(year, month - 2, 18);
+  const startY = prevMonthDate.getFullYear();
+  const startM = String(prevMonthDate.getMonth() + 1).padStart(2, "0");
+  const startDateStr = `${startY}-${startM}-18`;
+
+  // Tanggal 17 bulan terpilih
+  const endM = String(month).padStart(2, "0");
+  const endDateStr = `${year}-${endM}-17`;
+
+  const prevMonthName = prevMonthDate.toLocaleString("id-ID", { month: "short" });
+  const currentMonthName = new Date(year, month - 1, 1).toLocaleString("id-ID", { month: "short" });
+
+  return {
+    startDate: startDateStr,
+    endDate: endDateStr,
+    label: `18 ${prevMonthName} ${startY} - 17 ${currentMonthName} ${year}`,
+    shortLabel: `${prevMonthName}-${currentMonthName} (18-17)`,
+    monthYearKey: `${year}-${endM}`,
+  };
+}
+
+/**
+ * Memeriksa apakah suatu tanggal YYYY-MM-DD berada di dalam rentang [startDate, endDate]
+ */
+export function isDateInTutupBukuRange(dateStr: string, startDateStr: string, endDateStr: string): boolean {
+  if (!dateStr || !startDateStr || !endDateStr) return false;
+  return dateStr >= startDateStr && dateStr <= endDateStr;
+}
+
