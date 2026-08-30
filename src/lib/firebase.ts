@@ -1,13 +1,10 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getMessaging } from "firebase/messaging";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBMyjQstPcM-rWLxij2suE3c6o_VcIG3pY",
   authDomain: "reservasi-homestay-rep.firebaseapp.com",
@@ -18,12 +15,20 @@ const firebaseConfig = {
   measurementId: "G-HDT5GQ9N0T"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+// Initialize Firebase (Singleton pattern to prevent duplicate instances during Next.js Hot Reload)
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+
+let db: ReturnType<typeof getFirestore>;
+try {
+  db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+  });
+} catch {
+  db = getFirestore(app);
+}
+
+const messaging = typeof window !== "undefined" ? getMessaging(app) : null;
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 
-export { db };
-export { messaging };
+export { db, messaging, app };

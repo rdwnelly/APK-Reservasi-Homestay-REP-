@@ -13,29 +13,28 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      const activeStaff = typeof window !== "undefined" ? localStorage.getItem("activeStaff") : null;
       setLoading(false);
-      
-      if (!currentUser && !activeStaff) {
+
+      if (!currentUser) {
         router.push("/signin");
       }
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, [router]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
-        <div className="text-sm font-bold animate-pulse flex items-center gap-2">
-          <span>🔄 Memverifikasi Sesi Operasional...</span>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white gap-3">
+        <div className="w-8 h-8 border-3 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+        <span className="text-xs font-bold text-gray-300">
+          Memverifikasi Sesi Admin Firebase...
+        </span>
       </div>
     );
   }
 
-  const activeStaff = typeof window !== "undefined" ? localStorage.getItem("activeStaff") : null;
-  if (!user && !activeStaff) {
+  if (!user) {
     return null;
   }
 

@@ -18,6 +18,8 @@ interface ReservationData {
   tgl_checkin: string;
   tgl_checkout: string;
   status_bayar: string;
+  status_reservasi?: string;
+  nominal_dp?: string | number;
   total_tagihan: string;
 }
 
@@ -79,10 +81,12 @@ const LaporanPage = () => {
   }, [selectedMonth, filterMode, defaultTutupBuku]);
 
   useEffect(() => {
+    let isMounted = true;
     const q = query(collection(db, "reservasi"));
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
+        if (!isMounted) return;
         const data = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -91,13 +95,21 @@ const LaporanPage = () => {
         setLoading(false);
       },
       (err) => {
+        if (!isMounted) return;
         console.warn("Failed to load reservation data:", err.message);
         setError("Gagal memuat data. Coba refresh.");
         setLoading(false);
       }
     );
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      try {
+        unsubscribe();
+      } catch (e) {
+        // ignore unmount stream race
+      }
+    };
   }, []);
 
   // Group data by month-year for charts
@@ -125,10 +137,13 @@ const LaporanPage = () => {
     });
   }, [reservasiList, startDate, endDate]);
 
-  // Rekap pemasukan bulanan (khusus status lunas)
+  // Rekap pemasukan bulanan (khusus status lunas dan bukan batal)
   const pemasukanBulanan = useMemo(() => {
     const map: Record<string, number> = {};
     reservasiList.forEach((item) => {
+      const isBatal = item.status_bayar?.toLowerCase() === "batal" || item.status_reservasi === "Batal";
+      if (isBatal) return;
+
       if (item.status_bayar?.toLowerCase() === "lunas") {
         const monthYear = getMonthYear(item.tgl_checkin);
         const billed = Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0;
@@ -138,30 +153,40 @@ const LaporanPage = () => {
     return map;
   }, [reservasiList]);
 
-  // Totals for filtered data
+  // Totals for filtered data (Cegah pemasukan & piutang dari reservasi yang Batal)
   const totals = useMemo(() => {
     return filteredList.reduce(
       (
         acc,
         item
-      ): { lunas: number; dp: number; belumBayar: number; totalKeseluruhan: number } => {
+      ): { lunas: number; dp: number; belumBayar: number; totalKeseluruhan: number; totalBatal: number; batalCount: number } => {
         const billed = Number(item.total_tagihan.replace(/[^0-9-]/g, "")) || 0;
-        const target = item.status_bayar?.toLowerCase();
+        const target = item.status_bayar?.toLowerCase() || "";
+        const isBatal = target === "batal" || item.status_reservasi === "Batal";
+
+        // Jika Batal: JANGAN hitung ke pemasukan/piutang (otomatis berkurang)
+        if (isBatal) {
+          acc.totalBatal += billed;
+          acc.batalCount += 1;
+          return acc;
+        }
+
         if (target === "lunas") {
           acc.lunas += billed;
+          acc.totalKeseluruhan += billed;
         } else if (target === "dp" || target === "dp/uang muka") {
-          acc.dp += billed;
-        } else if (target === "batal") {
-          acc.belumBayar += billed;
+          const dpAmount = billed * 0.5; // Estimasi atau nominal DP
+          acc.dp += dpAmount;
+          acc.belumBayar += (billed - dpAmount);
+          acc.totalKeseluruhan += billed;
         } else {
           acc.belumBayar += billed;
+          acc.totalKeseluruhan += billed;
         }
-        if (target !== "batal") {
-            acc.totalKeseluruhan += billed;
-        }
+
         return acc;
       },
-      { lunas: 0, dp: 0, belumBayar: 0, totalKeseluruhan: 0 }
+      { lunas: 0, dp: 0, belumBayar: 0, totalKeseluruhan: 0, totalBatal: 0, batalCount: 0 }
     );
   }, [filteredList]);
 

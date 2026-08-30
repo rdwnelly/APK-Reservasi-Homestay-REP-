@@ -109,7 +109,9 @@ export default function RiwayatKunjunganPage() {
       where("status_reservasi", "in", ["Selesai", "Batal"])
     );
 
+    let isMounted = true;
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!isMounted) return;
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -125,11 +127,17 @@ export default function RiwayatKunjunganPage() {
       setRiwayatList(data);
       setIsLoading(false);
     }, (error) => {
+      if (!isMounted) return;
       console.warn("Firestore onSnapshot error:", error.message);
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      try {
+        unsubscribe();
+      } catch (e) {}
+    };
   }, []);
 
   // Filter data berdasarkan rentang Tanggal Mulai dan Tanggal Akhir (Tutup Buku 18-17 / Bulanan / Kustom)

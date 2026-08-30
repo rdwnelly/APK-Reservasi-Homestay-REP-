@@ -55,13 +55,21 @@ export default function PengaturanPage() {
 
   // Fetch daftar staf dari Firestore
   useEffect(() => {
+    let isMounted = true;
     const unsub = onSnapshot(collection(db, "staf"), (snapshot) => {
+      if (!isMounted) return;
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StaffMember));
       setStaffList(data);
     }, (err) => {
+      if (!isMounted) return;
       console.warn("Firestore staff load error:", err.message);
     });
-    return () => unsub();
+    return () => {
+      isMounted = false;
+      try {
+        unsub();
+      } catch (e) {}
+    };
   }, []);
 
   const requestPermission = async () => {
